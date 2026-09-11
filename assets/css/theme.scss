@@ -1,0 +1,92 @@
+/*-- scss:rules --*/
+
+// Sage + slate palette, same starting point used by the reference site this
+// project's CONTEXT.md is modeled after (raphaludwig.github.io). Swap these
+// once you have real brand colors.
+:root {
+  --pal-bg: #f4f6f2;
+  --pal-surface: #ffffff;
+  --pal-surface-glass: rgba(255, 255, 255, 0.78);
+  --pal-text: #2f3e46;
+  --pal-text-mute: #52796f;
+  --pal-accent: #52796f;
+  --pal-link: #3f5f56;
+  --pal-border: rgba(82, 121, 111, 0.28);
+}
+
+body {
+  background-color: var(--pal-bg);
+  color: var(--pal-text);
+}
+
+a {
+  color: var(--pal-link);
+}
+
+.navbar {
+  background-color: var(--pal-surface) !important;
+  border-bottom: 1px solid var(--pal-border);
+}
+
+.navbar .nav-link {
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar .nav-link:hover {
+  background-color: var(--pal-border);
+  color: var(--pal-accent) !important;
+}
+
+#quarto-content > main.content {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+// Home page: photo + bio sidebar next to the main content.
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 2.5rem;
+  max-width: 1100px;
+  margin: 2.5rem auto;
+  padding: 0 1.25rem 2rem;
+  align-items: start;
+}
+
+.home-left {
+  position: sticky;
+  top: 5.5rem;
+}
+
+.profile-photo {
+  width: 100%;
+  max-width: 280px;
+  border-radius: 1rem;
+  border: 1px solid var(--pal-border);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+  .home-left {
+    position: static;
+  }
+}
+
+// Blog listing cards.
+.quarto-listing .listing-item,
+.quarto-grid-item {
+  background-color: var(--pal-surface-glass);
+  border: 1px solid var(--pal-border);
+  border-radius: 0.75rem;
+}
+
+.page-footer {
+  background-color: var(--pal-surface);
+  border-top: 1px solid var(--pal-border);
+  color: var(--pal-text-mute);
+}

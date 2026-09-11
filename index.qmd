@@ -1,11 +1,28 @@
 ---
 title: "Home"
+page-layout: full
+toc: false
 ---
 
-# Hi, I'm Your Name
+::: {.home-grid}
 
-This is a placeholder homepage — replace this text with a short introduction:
-who you are, what you do, and what visitors will find on this site.
+::: {.home-left}
+![](assets/img/profile.jpg){.profile-photo}
 
+## Your Name
+
+Placeholder bio — replace with a real introduction: who you are, what you
+do, and what visitors will find on this site.
+
+- [LinkedIn](https://www.linkedin.com/in/seu-usuario)
+- [Email](mailto:seu-email@exemplo.com)
 - [About](about.qmd)
-- [Blog](blog.qmd)
+:::
+
+::: {.home-right}
+## Latest posts
+
+See the full [blog](blog.qmd) for all posts.
+:::
+
+:::

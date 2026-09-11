@@ -42,7 +42,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a0f9fd0d421825b736dc1bbcbcba2219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-ed2218c8c296c1bf812281b3f4f0812a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -76,7 +76,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -107,6 +107,16 @@ ul.task-list li input[type="checkbox"] {
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/seu-usuario" target="_blank"> <i class="bi bi-linkedin" role="img" aria-label="LinkedIn">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:seu-email@exemplo.com"> <i class="bi bi-envelope" role="img" aria-label="Email">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
   <li class="nav-item">
     <a class="nav-link" href="./#language-switch"> 
 <span class="menu-text">PT</span></a>
@@ -124,12 +134,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -138,7 +148,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -150,16 +160,26 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="hi-im-your-name" class="level1">
-<h1>Hi, I’m Your Name</h1>
-<p>This is a placeholder homepage — replace this text with a short introduction: who you are, what you do, and what visitors will find on this site.</p>
+<div class="home-grid">
+<div class="home-left">
+<p><img src="assets/img/profile.jpg" class="profile-photo img-fluid"></p>
+<section id="your-name" class="level2">
+<h2 class="anchored" data-anchor-id="your-name">Your Name</h2>
+<p>Placeholder bio — replace with a real introduction: who you are, what you do, and what visitors will find on this site.</p>
 <ul>
+<li><a href="https://www.linkedin.com/in/seu-usuario">LinkedIn</a></li>
+<li><a href="mailto:seu-email@exemplo.com">Email</a></li>
 <li><a href="./about.html">About</a></li>
-<li><a href="./blog.html">Blog</a></li>
 </ul>
-
-
 </section>
+</div>
+<section id="latest-posts" class="level2 home-right">
+<h2 class="anchored" data-anchor-id="latest-posts">Latest posts</h2>
+<p>See the full <a href="./blog.html">blog</a> for all posts.</p>
+</section>
+</div>
+
+
 
 </main> <!-- /main -->
 <script>
@@ -278,6 +298,11 @@ ul.task-list li input[type="checkbox"] {
           if (link.dataset.originalHref !== undefined) {
             link.href = link.dataset.originalHref;
           }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
         }
       }
     function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {

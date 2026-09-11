@@ -1,13 +1,29 @@
 ---
 title: "Início"
 output-file: index.html
+page-layout: full
+toc: false
 ---
 
-# Olá, eu sou Seu Nome
+::: {.home-grid}
 
-Esta é uma página inicial de exemplo — substitua este texto por uma breve
-apresentação: quem você é, o que você faz e o que os visitantes encontrarão
-neste site.
+::: {.home-left}
+![](assets/img/profile.jpg){.profile-photo}
 
+## Seu Nome
+
+Biografia de exemplo — substitua por uma apresentação real: quem você é, o
+que você faz e o que os visitantes encontrarão neste site.
+
+- [LinkedIn](https://www.linkedin.com/in/seu-usuario)
+- [Email](mailto:seu-email@exemplo.com)
 - [Sobre](about.pt.qmd)
-- [Blog](blog.pt.qmd)
+:::
+
+::: {.home-right}
+## Últimos posts
+
+Veja o [blog](blog.pt.qmd) completo para todos os posts.
+:::
+
+:::

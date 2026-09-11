@@ -11,7 +11,21 @@
     "href": "index.html",
     "title": "Home",
     "section": "",
-    "text": "Hi, I’m Your Name\nThis is a placeholder homepage — replace this text with a short introduction: who you are, what you do, and what visitors will find on this site.\n\nAbout\nBlog"
+    "text": "Placeholder bio — replace with a real introduction: who you are, what you do, and what visitors will find on this site.\n\nLinkedIn\nEmail\nAbout\n\n\n\n\n\nSee the full blog for all posts."
+  },
+  {
+    "objectID": "index.html#your-name",
+    "href": "index.html#your-name",
+    "title": "Home",
+    "section": "",
+    "text": "Placeholder bio — replace with a real introduction: who you are, what you do, and what visitors will find on this site.\n\nLinkedIn\nEmail\nAbout"
+  },
+  {
+    "objectID": "index.html#latest-posts",
+    "href": "index.html#latest-posts",
+    "title": "Home",
+    "section": "",
+    "text": "See the full blog for all posts."
   },
   {
     "objectID": "about.html",

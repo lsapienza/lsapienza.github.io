@@ -9,10 +9,11 @@ website:
 
 format:
   html:
-    theme: cosmo
+    theme: [cosmo, assets/css/theme.scss]
     css: styles.css
     toc: false
     smooth-scroll: true
+    link-external-newwindow: true
     include-after-body: _includes/language-switch.html
 
 editor: source

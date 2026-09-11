@@ -20,6 +20,13 @@ website:
       - href: blog.pt.qmd
         text: Blog
     right:
+      - icon: linkedin
+        href: "https://www.linkedin.com/in/seu-usuario"
+        aria-label: LinkedIn
+        target: _blank
+      - icon: envelope
+        href: "mailto:seu-email@exemplo.com"
+        aria-label: Email
       - text: EN
         href: "#language-switch"
         aria-label: "View in English"
