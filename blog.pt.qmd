@@ -1,0 +1,10 @@
+---
+title: "Blog"
+output-file: blog.html
+page-layout: full
+listing:
+  contents: "posts/*.pt.qmd"
+  sort: "date desc"
+  type: default
+  fields: [date, title, description]
+---

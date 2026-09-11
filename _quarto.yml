@@ -1,0 +1,18 @@
+# Shared base config, merged with _quarto-en.yml or _quarto-pt.yml depending on
+# which profile is active. Never rendered on its own — see CONTEXT.md "Profile".
+project:
+  type: website
+
+website:
+  page-navigation: true
+  reader-mode: true
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: false
+    smooth-scroll: true
+    include-after-body: _includes/language-switch.html
+
+editor: source

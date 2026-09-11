@@ -1,0 +1,13 @@
+---
+title: "Segundo post (exemplo traduzido)"
+date: 2026-08-20
+description: "Post de exemplo mostrando uma página que existe nos dois idiomas."
+output-file: second-post.html
+categories: [exemplo]
+en-version: true
+---
+
+Este post tem uma versão real em inglês (`posts/second-post.qmd`). Por isso
+ele carrega `en-version: true`: sinaliza ao processo de build que **não**
+deve mais ser copiado como placeholder para `/en/` — a versão real em inglês
+deve ser usada no lugar.

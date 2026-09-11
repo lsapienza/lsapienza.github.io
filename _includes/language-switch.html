@@ -1,0 +1,29 @@
+<script>
+// Language switch: navigates to the counterpart of the current page
+// (same slug, other /en//pt/ root), falling back to that language's
+// blog index when no counterpart exists yet. See CONTEXT.md
+// "Language switch" and "Counterpart".
+(function () {
+  var link = document.querySelector('a[href="#language-switch"]');
+  if (!link) return;
+
+  var path = window.location.pathname;
+  var isEn = path.indexOf("/en/") !== -1;
+  var thisRoot = isEn ? "/en/" : "/pt/";
+  var otherRoot = isEn ? "/pt/" : "/en/";
+  var rest = path.slice(path.indexOf(thisRoot) + thisRoot.length);
+  var targetUrl = otherRoot + rest;
+  var fallbackUrl = otherRoot + "blog.html";
+
+  link.addEventListener("click", function (event) {
+    event.preventDefault();
+    fetch(targetUrl, { method: "HEAD" })
+      .then(function (response) {
+        window.location.href = response.ok ? targetUrl : fallbackUrl;
+      })
+      .catch(function () {
+        window.location.href = fallbackUrl;
+      });
+  });
+})();
+</script>

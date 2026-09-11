@@ -1,0 +1,9 @@
+---
+title: "Sobre"
+output-file: about.html
+---
+
+# Sobre Seu Nome
+
+Biografia de exemplo. Substitua por informações reais: histórico, interesses
+e como entrar em contato.

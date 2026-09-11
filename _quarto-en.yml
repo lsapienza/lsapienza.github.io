@@ -1,0 +1,30 @@
+# English profile. Render with: quarto render --profile en
+# Owns everything that differs for the English version: output location,
+# lang, navbar, footer, site description. See CONTEXT.md "Profile".
+project:
+  output-dir: docs/en
+  render:
+    - "*.qmd"
+    - "posts/*.qmd"
+    - "!*.pt.qmd"
+    - "!posts/*.pt.qmd"
+
+lang: en
+
+website:
+  title: "Your Name"
+  description: "Personal site of Your Name — replace with a real one-line description."
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: about.qmd
+        text: About
+      - href: blog.qmd
+        text: Blog
+    right:
+      - text: PT
+        href: "#language-switch"
+        aria-label: "Ver em português"
+  page-footer:
+    center: "© 2026 Your Name · English version"

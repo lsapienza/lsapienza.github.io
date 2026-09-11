@@ -1,0 +1,11 @@
+---
+title: "Second post (translated example)"
+date: 2026-08-20
+description: "Example post showing a page that exists in both languages."
+categories: [example]
+---
+
+This post has a real counterpart in Portuguese
+(`posts/second-post.pt.qmd`), which is marked with `en-version: true` in its
+front matter — so it no longer stands in as a placeholder on the English
+side, and this file is used instead.

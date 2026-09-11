@@ -1,0 +1,16 @@
+---
+title: "Primeiro post"
+date: 2026-08-01
+description: "Um post de exemplo, ainda sem versão em inglês."
+output-file: hello-world.html
+categories: [exemplo]
+---
+
+Este é um post de exemplo escrito apenas em português. Como não existe ainda
+um arquivo `posts/hello-world.qmd` (a versão em inglês), o `build.ps1` o trata
+como um **placeholder**: o mesmo conteúdo é renderizado também para dentro de
+`/en/`, até que a tradução real seja escrita.
+
+Quando a versão em inglês for criada, adicione `en-version: true` ao
+front matter deste arquivo — veja `posts/second-post.pt.qmd` para um exemplo
+de post já traduzido.

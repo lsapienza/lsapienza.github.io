@@ -1,0 +1,11 @@
+---
+title: "Home"
+---
+
+# Hi, I'm Your Name
+
+This is a placeholder homepage — replace this text with a short introduction:
+who you are, what you do, and what visitors will find on this site.
+
+- [About](about.qmd)
+- [Blog](blog.qmd)

@@ -1,0 +1,13 @@
+/.quarto/
+
+**/*.quarto_ipynb
+
+# Stray output from a profile-less `quarto render`/preview (e.g. triggered by
+# an IDE opening _quarto.yml). Real output only ever belongs in docs/en and
+# docs/pt — see CONTEXT.md "Profile": a render without an explicit profile is
+# always a mistake.
+/_site/
+/site_libs/
+/*-listing.json
+/listings.json
+/search.json

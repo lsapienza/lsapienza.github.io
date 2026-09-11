@@ -1,0 +1,11 @@
+---
+title: "Blog"
+page-layout: full
+listing:
+  contents: "posts/*.qmd"
+  exclude:
+    filename: "*.pt.qmd"
+  sort: "date desc"
+  type: default
+  fields: [date, title, description]
+---

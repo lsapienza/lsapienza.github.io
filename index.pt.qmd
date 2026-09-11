@@ -1,0 +1,13 @@
+---
+title: "Início"
+output-file: index.html
+---
+
+# Olá, eu sou Seu Nome
+
+Esta é uma página inicial de exemplo — substitua este texto por uma breve
+apresentação: quem você é, o que você faz e o que os visitantes encontrarão
+neste site.
+
+- [Sobre](about.pt.qmd)
+- [Blog](blog.pt.qmd)
