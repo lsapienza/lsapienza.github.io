@@ -1,0 +1,84 @@
+"""Coleta da série SGS 432 (meta Selic definida pelo Copom) e cálculo da
+variação em torno de cada reunião.
+
+Diferente da API de atas do Copom, a API do SGS (Sistema Gerenciador de
+Séries Temporais) é um contrato público estável e amplamente documentado
+do BCB, no mesmo formato há muitos anos — a confiança no formato usado
+abaixo é bem mais alta do que a do módulo `atas_copom`. Ainda assim, este
+ambiente de desenvolvimento não tem acesso de rede a bcb.gov.br, então
+nada aqui foi testado contra uma resposta real; confirme o formato antes
+de citar qualquer variação de Selic no paper (regra de ouro do projeto).
+"""
+
+from __future__ import annotations
+
+import pandas as pd
+
+from .atas_copom import TIMEOUT_SEGUNDOS, criar_sessao_com_retry
+
+URL_SGS_SELIC = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados"
+
+
+def baixar_serie_selic() -> pd.DataFrame:
+    """Baixa a série completa da meta Selic (% a.a.) do SGS 432.
+
+    Retorna um DataFrame com colunas `data` (datetime64) e `valor` (float),
+    ordenado por data. A série é diária, mas só muda de valor nos dias em
+    que o Copom decide alterar a meta.
+    """
+    sessao = criar_sessao_com_retry()
+    resposta = sessao.get(
+        URL_SGS_SELIC, params={"formato": "json"}, timeout=TIMEOUT_SEGUNDOS
+    )
+    resposta.raise_for_status()
+
+    serie = pd.DataFrame(resposta.json())
+    serie["data"] = pd.to_datetime(serie["data"], format="%d/%m/%Y")
+    serie["valor"] = serie["valor"].astype(float)
+    return serie.sort_values("data").reset_index(drop=True)
+
+
+def calcular_variacao_por_reuniao(
+    serie_selic: pd.DataFrame, datas_reuniao: pd.Series
+) -> pd.Series:
+    """Calcula, para cada data de reunião, a variação da meta Selic decidida nela.
+
+    variação = (valor vigente logo após a reunião) - (valor vigente
+    imediatamente antes dela). "Antes" é o último valor da série com data
+    estritamente anterior à reunião; "depois" é o primeiro valor dentro de
+    uma janela de até 5 dias após a reunião (a mudança de meta costuma
+    valer a partir do dia seguinte à decisão) — essa janela é uma
+    suposição razoável, não confirmada contra dados reais nesta sandbox.
+
+    Retorna uma Series alinhada por posição a `datas_reuniao` (mesma
+    ordem/índice de entrada), não ordenada por data internamente.
+    """
+    reunioes = pd.DataFrame(
+        {
+            "_ordem": range(len(datas_reuniao)),
+            "data_reuniao": pd.to_datetime(pd.Series(datas_reuniao).reset_index(drop=True)),
+        }
+    ).sort_values("data_reuniao")
+
+    serie_antes = serie_selic.rename(columns={"data": "data_valor", "valor": "valor_antes"})
+    serie_depois = serie_selic.rename(columns={"data": "data_valor", "valor": "valor_depois"})
+
+    com_antes = pd.merge_asof(
+        reunioes,
+        serie_antes,
+        left_on="data_reuniao",
+        right_on="data_valor",
+        direction="backward",
+        allow_exact_matches=False,
+    )
+    com_ambos = pd.merge_asof(
+        com_antes,
+        serie_depois,
+        left_on="data_reuniao",
+        right_on="data_valor",
+        direction="forward",
+        tolerance=pd.Timedelta(days=5),
+    )
+
+    com_ambos["variacao_selic"] = com_ambos["valor_depois"] - com_ambos["valor_antes"]
+    return com_ambos.sort_values("_ordem")["variacao_selic"].reset_index(drop=True)

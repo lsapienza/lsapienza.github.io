@@ -42,7 +42,7 @@ PADRAO_INICIO_SECAO_C = re.compile(
 LIMITE_CARACTERES_SECOES_A_B = 4500
 
 
-def _criar_sessao() -> requests.Session:
+def criar_sessao_com_retry() -> requests.Session:
     """Cria uma sessão requests com retry e backoff exponencial.
 
     5 tentativas, backoff_factor=1 → espera 1s, 2s, 4s, 8s, 16s entre elas,
@@ -229,7 +229,7 @@ def coletar_atas(a_partir_de: int = REUNIAO_MINIMA) -> list[Document]:
     Retorna uma lista de `Document` (langchain_core) com `page_content` já
     limpo e `metadata = {"nro_reuniao": ..., "data": ...}`.
     """
-    sessao = _criar_sessao()
+    sessao = criar_sessao_com_retry()
     reunioes = listar_reunioes(sessao, a_partir_de=a_partir_de)
 
     documentos = []

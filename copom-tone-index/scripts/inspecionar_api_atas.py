@@ -17,11 +17,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from coleta.atas_copom import URL_DETALHES, URL_LISTA, _criar_sessao, _extrair_lista  # noqa: E402
+from coleta.atas_copom import URL_DETALHES, URL_LISTA, criar_sessao_com_retry, _extrair_lista  # noqa: E402
 
 
 def main() -> None:
-    sessao = _criar_sessao()
+    sessao = criar_sessao_com_retry()
 
     resposta_lista = sessao.get(URL_LISTA, params={"quantidade": 3}, timeout=30)
     resposta_lista.raise_for_status()
