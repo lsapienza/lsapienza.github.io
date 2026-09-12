@@ -6,5 +6,12 @@ __pycache__/
 .quarto/
 *_files/
 
+# .tex gerado pelo `quarto render` (keep-tex: true) — regenerável a
+# partir de paper.qmd; preambulo.tex é fonte de verdade e fica versionado.
+paper/paper.tex
+
 # Config local / segredos
 .env
+
+/.quarto/
+**/*.quarto_ipynb

@@ -25,3 +25,10 @@ plotnine
 
 # Renderização de Python pelo Quarto
 jupyter
+
+# CLI do Quarto (para `quarto render` gerar o paper em PDF) — o instalador
+# oficial (quarto.org/GitHub) pode não ser alcançável em todo ambiente;
+# este pacote do PyPI empacota o mesmo binário. Requer também um motor
+# LaTeX no sistema (ex.: `apt install texlive-latex-extra texlive-lang-portuguese`)
+# com os pacotes booktabs e threeparttable.
+quarto-cli
