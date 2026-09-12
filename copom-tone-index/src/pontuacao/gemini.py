@@ -10,16 +10,10 @@ formatar de qualquer jeito.
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+from .prompts import INSTRUCOES_SISTEMA
 from .schema import TomAta
 
 MODELO_GEMINI = "gemini-flash-lite-latest"
-
-PROMPT_SISTEMA = (
-    "Você é um analista de política monetária. Leia o trecho de uma ata do "
-    "Copom (seções de atualização da conjuntura e de cenários e riscos) e "
-    "atribua uma única nota de tom: -3.0 é muito dovish, +3.0 é muito "
-    "hawkish, 0 é neutro."
-)
 
 
 def criar_modelo_gemini() -> ChatGoogleGenerativeAI:
@@ -43,7 +37,7 @@ def pontuar_com_gemini(texto_secoes_a_b: str) -> TomAta:
     modelo_estruturado = modelo.with_structured_output(TomAta)
     return modelo_estruturado.invoke(
         [
-            ("system", PROMPT_SISTEMA),
+            ("system", INSTRUCOES_SISTEMA),
             ("human", texto_secoes_a_b),
         ]
     )
