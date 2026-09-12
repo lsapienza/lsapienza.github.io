@@ -1,0 +1,10 @@
+# Python
+.venv/
+__pycache__/
+
+# Quarto
+.quarto/
+*_files/
+
+# Config local / segredos
+.env
