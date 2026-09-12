@@ -1,0 +1,26 @@
+# LLMs em paralelo (LangChain + adaptadores por provedor)
+langchain
+langchain-google-genai
+langchain-anthropic
+langchain-openai
+
+# Saída estruturada dos LLMs
+pydantic
+
+# Coleta e limpeza das atas do BCB
+requests
+beautifulsoup4
+
+# Dados
+pandas
+numpy
+
+# Calibração (OLS com inferência) e métricas
+statsmodels
+scikit-learn
+
+# Gráficos estilo ggplot
+plotnine
+
+# Renderização de Python pelo Quarto
+jupyter
