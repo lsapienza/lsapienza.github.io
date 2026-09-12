@@ -34,6 +34,13 @@ REUNIAO_MINIMA = 232
 
 TIMEOUT_SEGUNDOS = 30
 
+# Marcadores de início/fim das seções A e B, usados por extrair_secoes_a_b.
+PADRAO_INICIO_SECAO_A = re.compile(r"A\)\s*Atualiza", re.IGNORECASE)
+PADRAO_INICIO_SECAO_C = re.compile(
+    r"C\)\s*(?:Discuss\w*|Decis\w*|Voto\w*|Condu\w*)", re.IGNORECASE
+)
+LIMITE_CARACTERES_SECOES_A_B = 4500
+
 
 def _criar_sessao() -> requests.Session:
     """Cria uma sessão requests com retry e backoff exponencial.
@@ -179,6 +186,41 @@ def limpar_html_ata(html: str) -> str:
     texto = sopa.get_text(separator=" ")
     texto = re.sub(r"\s+", " ", texto).strip()
     return texto
+
+
+def extrair_secoes_a_b(
+    texto_limpo: str, limite_caracteres: int = LIMITE_CARACTERES_SECOES_A_B
+) -> str:
+    """Recorta do texto já limpo apenas as seções A e B da ata, descartando C em diante.
+
+    Por que isso corta ~50% dos tokens sem perder sinal informacional: nas
+    atas do Copom, as seções A ("Atualização da conjuntura...") e B
+    ("Cenários e riscos"/avaliação prospectiva) concentram a análise
+    qualitativa — leitura da conjuntura doméstica e externa, cenários e
+    riscos para a inflação — que é justamente o material com carga
+    hawkish/dovish que o índice de tom tenta medir. A partir da seção C
+    ("Condução da política monetária"/decisão/votos), a ata passa a tratar
+    a decisão da Selic já anunciada, a votação e formalidades processuais —
+    um trecho tipicamente tão longo quanto A+B juntas, mas que repete
+    estrutura de reunião para reunião e não acrescenta sinal analítico
+    novo. Pior: incluir a seção C exporia a própria decisão de Selic (o
+    alvo que o índice de tom será calibrado contra) ao texto que os LLMs
+    leem para pontuar o tom, contaminando a avaliação com a resposta.
+    Cortar em C reduz o texto por volume sem remover o que é relevante
+    para o tom.
+
+    O limite de ~4500 caracteres é uma salvaguarda adicional para atas mais
+    longas, não o mecanismo principal de corte (que é o próprio recorte
+    A→C).
+    """
+    correspondencia_inicio = PADRAO_INICIO_SECAO_A.search(texto_limpo)
+    inicio = correspondencia_inicio.start() if correspondencia_inicio else 0
+
+    correspondencia_fim = PADRAO_INICIO_SECAO_C.search(texto_limpo, pos=inicio)
+    fim = correspondencia_fim.start() if correspondencia_fim else len(texto_limpo)
+
+    secoes_a_b = texto_limpo[inicio:fim].strip()
+    return secoes_a_b[:limite_caracteres]
 
 
 def coletar_atas(a_partir_de: int = REUNIAO_MINIMA) -> list[Document]:
