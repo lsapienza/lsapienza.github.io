@@ -18,6 +18,7 @@ numpy
 # Calibração (OLS com inferência) e métricas
 statsmodels
 scikit-learn
+scipy
 
 # Gráficos estilo ggplot
 plotnine
