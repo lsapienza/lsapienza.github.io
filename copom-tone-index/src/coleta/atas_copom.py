@@ -47,8 +47,20 @@ def criar_sessao_com_retry() -> requests.Session:
 
     5 tentativas, backoff_factor=1 → espera 1s, 2s, 4s, 8s, 16s entre elas,
     reagindo a erros transitórios (429 e 5xx) do lado do BCB.
+
+    Define um User-Agent de navegador: a API do SGS (api.bcb.gov.br)
+    rejeita com 406 o User-Agent padrão do requests (python-requests/x.y),
+    comportamento típico de bloqueio anti-robô em sites do governo.
     """
     sessao = requests.Session()
+    sessao.headers.update(
+        {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            )
+        }
+    )
     retry = Retry(
         total=5,
         backoff_factor=1,
