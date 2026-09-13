@@ -20,13 +20,27 @@ cv/                      PDFs de currículo (copiados como estão pelo build)
 build.ps1                gera docs/: renderiza os dois profiles, resolve
                           posts placeholder, escreve o dispatcher e os
                           redirects de legacy URL
-docs/                    saída publicável (gerada — não editar manualmente)
+docs/                    saída publicável (gerada pelo CI a cada push em
+                          main — não commitada, não editar manualmente)
+.github/workflows/
+  publish.yml            roda build.ps1 e publica docs/ no GitHub Pages
+                          automaticamente a cada push em main
 ```
 
-## Build
+## Publicação
 
-Requer o [Quarto CLI](https://quarto.org/docs/get-started/) no PATH (**não
-instalado nesta máquina ainda**).
+Automática: todo push em `main` dispara `.github/workflows/publish.yml`,
+que roda `build.ps1` (sim, PowerShell — os runners do GitHub Actions já
+vêm com `pwsh`) e publica `docs/` via GitHub Pages. Não precisa mais
+rodar o build localmente nem commitar `docs/`.
+
+**Configuração necessária no GitHub, uma vez só:** em Settings → Pages,
+trocar "Source" para **GitHub Actions** (em vez de "Deploy from a
+branch"). Sem isso o workflow builda mas o passo de deploy falha.
+
+## Build local (prévia, sem publicar)
+
+Requer o [Quarto CLI](https://quarto.org/docs/get-started/) no PATH.
 
 ```powershell
 .\build.ps1

@@ -5,6 +5,10 @@ project:
   render:
     - "*.pt.qmd"
     - "posts/*.pt.qmd"
+    # copom-tone-index/ é um projeto Quarto à parte (tem seu próprio
+    # _quarto.yml) — excluído por precaução, mesmo que nenhum arquivo de
+    # lá bata com "*.pt.qmd" hoje.
+    - "!copom-tone-index/**"
 
 lang: pt
 

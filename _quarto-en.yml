@@ -8,6 +8,10 @@ project:
     - "posts/*.qmd"
     - "!*.pt.qmd"
     - "!posts/*.pt.qmd"
+    # copom-tone-index/ é um projeto Quarto à parte (tem seu próprio
+    # _quarto.yml) — sem isso, "*.qmd" casa em qualquer profundidade e
+    # varre o paper.qmd dele pra dentro do site pessoal.
+    - "!copom-tone-index/**"
 
 lang: en
 
