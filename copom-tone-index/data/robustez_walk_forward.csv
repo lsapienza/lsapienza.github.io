@@ -1,0 +1,3 @@
+modelo,n_pred,rmse_walk_forward,mae_walk_forward
+Gemini,28,0.5644465302810017,0.51272567364669
+Léxico (baseline),29,0.590006222012519,0.5370946252296034
