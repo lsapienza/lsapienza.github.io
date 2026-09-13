@@ -7,6 +7,10 @@ langchain-openai
 # Saída estruturada dos LLMs
 pydantic
 
+# Carrega .env nos scripts de pontuação, sem depender de o terminal/editor
+# injetar as variáveis de ambiente sozinho.
+python-dotenv
+
 # Coleta e limpeza das atas do BCB
 requests
 beautifulsoup4
