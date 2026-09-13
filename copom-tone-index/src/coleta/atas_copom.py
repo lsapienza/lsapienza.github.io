@@ -113,7 +113,13 @@ def listar_reunioes(
     reunioes = []
     for item in itens:
         numero = _obter_campo(
-            item, "NumeroReuniao", "numeroReuniao", "numero_reuniao", "Reuniao", "reuniao"
+            item,
+            "nroReuniao",
+            "NumeroReuniao",
+            "numeroReuniao",
+            "numero_reuniao",
+            "Reuniao",
+            "reuniao",
         )
         if numero is None:
             continue
@@ -138,9 +144,9 @@ def buscar_html_ata(sessao: requests.Session, reuniao: ReuniaoCopom) -> str:
     """Baixa o HTML bruto da ata de uma reunião.
 
     Prioriza uma URL de detalhe já presente no item da listagem; na ausência
-    dela, cai para uma chamada a `atas_detalhes` com `numeroReuniao` como
-    parâmetro — nome de parâmetro não confirmado nesta sandbox, ajustar
-    conforme scripts/inspecionar_api_atas.py.
+    dela, cai para uma chamada a `atas_detalhes` com `nroReuniao` como
+    parâmetro — confirmado contra a API real (a listagem usa a mesma
+    abreviação "nro", não "numero").
     """
     url_direta = _url_detalhe_da_listagem(reuniao.item_bruto)
     if url_direta:
@@ -151,7 +157,7 @@ def buscar_html_ata(sessao: requests.Session, reuniao: ReuniaoCopom) -> str:
     else:
         resposta = sessao.get(
             URL_DETALHES,
-            params={"numeroReuniao": reuniao.numero_reuniao},
+            params={"nroReuniao": reuniao.numero_reuniao},
             timeout=TIMEOUT_SEGUNDOS,
         )
     resposta.raise_for_status()

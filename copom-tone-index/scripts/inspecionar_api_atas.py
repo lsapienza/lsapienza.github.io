@@ -1,11 +1,15 @@
 """Script de apoio único: confirma o formato real das APIs de atas do Copom.
 
-Este ambiente de desenvolvimento não tem acesso de rede a bcb.gov.br, então
-os nomes de campo usados em src/coleta/atas_copom.py (candidatos passados a
-_obter_campo) são suposições defensivas, não confirmadas. Rode este script
-num ambiente com rede liberada, compare as chaves impressas com os
-candidatos usados no módulo de coleta e ajuste-os se não baterem — antes
-disso, não confie em nenhum resultado de coletar_atas().
+Formato da LISTAGEM (`atas`) já confirmado contra a API real: as chaves são
+`nroReuniao`, `dataReferencia`, `dataPublicacao`, `titulo` — sem campo de
+URL de detalhe. `src/coleta/atas_copom.py` já foi ajustado para isso.
+
+O formato de DETALHES (`atas_detalhes`) ainda não foi confirmado: a
+primeira tentativa usando `nroReuniao` como parâmetro pode não ser a forma
+certa de chamar esse endpoint (a listagem não trouxe pista nenhuma de como
+navegar até o detalhe). Rode este script e cole a saída de volta para
+ajustar `buscar_html_ata` — em especial o nome do campo que carrega o HTML
+da ata dentro do JSON de resposta.
 
 Uso:
     python scripts/inspecionar_api_atas.py
@@ -35,12 +39,9 @@ def main() -> None:
     print(json.dumps(itens[0], ensure_ascii=False, indent=2)[:2000])
 
     print("\n=== Detalhes da primeira ata da lista (atas_detalhes) ===")
-    print(
-        "Ajuste os parâmetros abaixo manualmente conforme o que a lista "
-        "sugerir (ex.: usar a própria URL do item, se houver um campo Url)."
-    )
+    print(f"Tentando com nroReuniao={itens[0].get('nroReuniao')}...")
     resposta_detalhe = sessao.get(
-        URL_DETALHES, params={"numeroReuniao": itens[0].get("NumeroReuniao")}, timeout=30
+        URL_DETALHES, params={"nroReuniao": itens[0].get("nroReuniao")}, timeout=30
     )
     print("Status:", resposta_detalhe.status_code)
     if resposta_detalhe.ok:
