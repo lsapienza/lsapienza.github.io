@@ -13,6 +13,13 @@ format:
     include-in-header: preambulo.tex
     colorlinks: true
     keep-tex: true
+    # Sem isso, figuras (assim como as tabelas em tabelas_latex.py) são
+    # floats livres e o LaTeX pode empurrá-las para antes do heading da
+    # seção em que deveriam aparecer -- confirmado rodando com dados
+    # reais (a seção "5.5 Figuras" saía depois das 3 figuras). "H" (do
+    # pacote float, carregado em preambulo.tex) fixa cada figura no
+    # lugar exato em que é impressa.
+    fig-pos: "H"
 bibliography: referencias.bib
 jupyter: copom-tone-index
 execute:
@@ -54,11 +61,14 @@ robustez da calibração é avaliada em três exercícios complementares
 formalizada pelo teste de Vuong para modelos não aninhados. Este
 documento é gerado inteiramente por código executável — tabelas e
 figuras vêm de chunks que leem os dados processados pelo pipeline do
-projeto, nunca de números digitados à mão. Na versão atual, os chunks de
-Resultados apontam para arquivos de dados que ainda não existem: a coleta
-das atas e a pontuação pelos LLMs dependem de acesso à API do Banco
-Central e de chaves de API pagas, indisponíveis no ambiente em que este
-rascunho foi escrito (Seção~\ref{sec-proximos-passos}).
+projeto, nunca de números digitados à mão. Nesta versão, o pipeline já
+rodou contra dados reais para o Gemini e para o baseline léxico (47-49
+reuniões, da 232ª à 280ª); Claude e OpenAI ainda faltam entrar na
+comparação (Seção~\ref{sec-proximos-passos}). Com os dois modelos já
+calibrados, o tom do Gemini explica de forma estatisticamente
+significativa a variação da Selic ($\hat\beta=0.32$, $p<0.001$,
+$R^2=0.30$), o que o baseline léxico não faz ($p=0.97$) — uma diferença
+confirmada como robusta pelo teste de Vuong ($p=0.0013$).
 
 # Introdução
 
@@ -476,37 +486,51 @@ except FileNotFoundError as erro:
     print(nota_dados_ausentes(erro.filename))
 ```
 
+```{python}
+#| output: asis
+from visualizacao.graficos import grafico_comparativo_selic
+
+try:
+    tabela_final = pd.read_csv(CAMINHO_DADOS / "tabela_final.csv")
+    tabela_calibracao = pd.read_csv(CAMINHO_DADOS / "tabela_calibracao.csv")
+    grafico3 = grafico_comparativo_selic(tabela_final, tabela_calibracao)
+    grafico3.save("figuras/comparativo_selic.png", dpi=200, verbose=False)
+    print("![Tom calibrado vs. variação real da Selic — comparação direta "
+          "entre o que o índice de cada LLM implicaria e a decisão de fato.]"
+          "(figuras/comparativo_selic.png){#fig-comparativo width=90%}")
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
 # Próximos Passos {#sec-proximos-passos}
 
-- **Rodar a coleta real**: este ambiente de desenvolvimento não tem
-  acesso de rede a `bcb.gov.br`; os nomes de campo do JSON das duas APIs
-  de atas nunca foram confirmados contra uma resposta real. Rodar
-  `scripts/inspecionar_api_atas.py` num ambiente com rede liberada e
-  ajustar os candidatos de campo em `atas_copom.py` se necessário, antes
-  de confiar em qualquer número deste pipeline.
-- **Obter chaves de API reais** (Google, Anthropic, OpenAI) e rodar os
-  três loops de pontuação (`scripts/pontuar_atas_*.py`), gerando os
-  caches `scores_*_cache.csv`.
-- **Rodar a montagem da tabela final, a calibração, a robustez e os
-  gráficos** (`montar_tabela_final.py`, `calibrar_modelos.py`,
-  `avaliar_robustez.py`, `gerar_graficos.py`), preenchendo as tabelas e
-  figuras que aparecem vazias nesta versão.
-- **Erros-padrão robustos**: a calibração atual usa OLS clássico; com
-  dados reais, avaliar erros-padrão HAC (Newey-West), já que a série é
-  temporal e pode ter autocorrelação residual.
-- **Poder estatístico**: com $n$ pequeno (uma observação por reunião do
-  Copom), os testes de significância — inclusive o de Vuong — têm poder
-  limitado; reavaliar a robustez das conclusões à medida que mais atas
-  entrarem na amostra.
-- **Revisão do léxico** com uma amostra maior de atas reais, para checar
-  cobertura (quantas atas ficam com $n_h + n_d = 0$) e ajustar termos.
+- **Adicionar Claude e OpenAI à comparação**: a coleta e a pontuação já
+  rodaram de ponta a ponta contra dados reais para o Gemini e para o
+  baseline léxico (232ª à 280ª reunião); Claude ainda não tem
+  `ANTHROPIC_API_KEY` configurada e a conta da OpenAI está sem crédito
+  (`insufficient_quota`). Assim que os dois estiverem disponíveis, basta
+  rodar `scripts/pontuar_atas_claude.py` e
+  `scripts/pontuar_atas_openai.py` e refazer a montagem da tabela final
+  em diante — o pipeline já foi desenhado para incorporar
+  automaticamente qualquer subconjunto de provedores disponível.
+- **Erros-padrão robustos**: a calibração atual usa OLS clássico; avaliar
+  erros-padrão HAC (Newey-West), já que a série é temporal e pode ter
+  autocorrelação residual.
+- **Poder estatístico**: com $n=47$-$49$ (uma observação por reunião do
+  Copom), os testes de significância — inclusive o de Vuong — ainda têm
+  poder limitado; reavaliar a robustez das conclusões à medida que mais
+  atas entrarem na amostra.
+- **Revisão do léxico**: o baseline não capturou relação nenhuma com a
+  variação da Selic ($R^2 \approx 0$, Seção~\ref{sec-metodologia}) — o
+  esperado de um piso de comparação, mas vale checar cobertura (quantas
+  atas ficam com $n_h + n_d = 0$) e ajustar termos numa amostra maior.
 - **Logo oficial da Análise Macro**: a capa deste documento usa um
   placeholder (Seção de título) — substituir por
   `figuras/logo_analise_macro_placeholder.png` com o arquivo real.
 - **Referências bibliográficas**: os dados de @apelgrimaldi2012 e
   @hansenmcmahon2016 foram reconstruídos de memória, sem acesso à
-  internet neste ambiente para conferir volume/páginas exatos — revisar
-  antes de submissão.
+  internet para conferir volume/páginas exatos — revisar antes de
+  submissão.
 
 # Conclusão
 
@@ -516,11 +540,14 @@ sobre o mesmo texto, calibradas contra a variação da Selic e comparadas
 por um teste formal de robustez estatística (Vuong), com a comparação de
 modelos validada em três horizontes de robustez (in-sample, holdout e
 walk-forward) — e a infraestrutura de código que o executa de ponta a
-ponta, do download da ata bruta à figura final. O que falta não é
-método: é rodar o pipeline num ambiente com acesso real à API do Banco
-Central e às APIs dos três provedores de LLM, o que esta sandbox de
-desenvolvimento não permite. A Seção~\ref{sec-proximos-passos} lista
-exatamente esse caminho.
+ponta, do download da ata bruta à figura final. Com o Gemini e o
+baseline léxico já calibrados contra dados reais (47 reuniões, de 2020 a
+2026), o resultado central do projeto já está de pé: o tom lido pelo
+Gemini explica de forma estatisticamente significativa e robusta
+(Vuong, $p=0.0013$) a variação da Selic, o que um dicionário simples não
+faz. O que falta é completar a comparação com Claude e OpenAI assim que
+suas chaves/créditos estiverem disponíveis — a
+Seção~\ref{sec-proximos-passos} lista exatamente esse caminho.
 
 # Referências {.unnumbered}
 

@@ -51,7 +51,13 @@ def formatar_tabela_booktabs(
     rotulo_latex = f"\n\\label{{{label}}}" if label else ""
 
     return (
-        "\\begin{table}[ht]\n"
+        # [H] (pacote float, carregado em preambulo.tex) em vez de [ht]:
+        # sem isso, o LaTeX trata a tabela como float livre e pode
+        # reposicioná-la longe do texto ao redor -- na prática, subindo
+        # tabelas inteiras para ANTES do título da seção em que deviam
+        # aparecer, quando não há prosa suficiente ao redor para ancorá-las.
+        # [H] fixa a tabela exatamente onde ela é impressa.
+        "\\begin{table}[H]\n"
         "\\centering\n"
         f"\\caption{{{titulo}}}{rotulo_latex}\n"
         "\\begin{threeparttable}\n"
