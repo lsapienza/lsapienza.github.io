@@ -1,33 +1,33 @@
 """Coleta das atas do Copom via API pública do Banco Central.
 
-AVISO IMPORTANTE — leia antes de usar:
-Este módulo foi escrito num ambiente sem acesso de rede a bcb.gov.br, então os
-nomes de campo do JSON retornado pelas duas APIs (lista e detalhes) NÃO foram
-confirmados contra uma resposta real. Cada extração de campo abaixo tenta
-várias variações plausíveis de nome de chave (`_obter_campo` é tolerante a
-maiúsculas/minúsculas e a sinônimos comuns), mas isso é uma defesa, não uma
-confirmação. Antes de rodar a coleta de verdade, execute
-`scripts/inspecionar_api_atas.py` (que só funciona com rede liberada para
-bcb.gov.br) e confira se as chaves candidatas usadas aqui realmente aparecem
-na resposta; ajuste as listas de candidatos se não baterem. Nenhum número ou
-texto de ata deste módulo deve ser citado no paper sem ter passado por essa
-confirmação.
+Confirmado contra a API real (não mais suposição defensiva):
+- A listagem (`atas`) devolve `nroReuniao`, `dataReferencia` (AAAA-MM-DD),
+  `dataPublicacao` e `titulo` — sem nenhum campo de URL/detalhe.
+- O conteúdo da ata NÃO vem de um endpoint JSON de detalhes (o endpoint
+  `atas_detalhes` do escopo original não existe/não é usado pelo site real
+  — retorna 500 para qualquer parâmetro testado). O site publica cada ata
+  como **PDF**, com a URL seguindo um padrão estável:
+  `/content/copom/atascopom/Copom{nro}-not{AAAAMMDD}{nro}.pdf`, onde a
+  data é a própria `dataReferencia` da reunião. Padrão descoberto
+  inspecionando o tráfego de rede do site (bcb.gov.br/publicacoes/atascopom)
+  e confirmado baixando o PDF de verdade para a 232ª reunião (05/08/2020) e
+  para as reuniões 277ª-280ª (2026).
 """
 
 from __future__ import annotations
 
+import io
 import re
 from dataclasses import dataclass
 from typing import Any
 
 import requests
-from bs4 import BeautifulSoup
 from langchain_core.documents import Document
+from pypdf import PdfReader
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 URL_LISTA = "https://www.bcb.gov.br/api/servico/sitebcb/copom/atas"
-URL_DETALHES = "https://www.bcb.gov.br/api/servico/sitebcb/copom/atas_detalhes"
 
 # A partir da 232ª reunião, conforme escopo definido para o projeto.
 REUNIAO_MINIMA = 232
@@ -63,11 +63,7 @@ def criar_sessao_com_retry() -> requests.Session:
 
 
 def _obter_campo(item: dict, *candidatos: str) -> Any:
-    """Busca um campo em `item` tentando várias grafias possíveis do nome da chave.
-
-    Necessário porque não confirmamos o schema real da API nesta sandbox —
-    ver aviso no topo do módulo.
-    """
+    """Busca um campo em `item` tentando várias grafias possíveis do nome da chave."""
     chaves_normalizadas = {chave.lower(): chave for chave in item}
     for candidato in candidatos:
         chave_real = chaves_normalizadas.get(candidato.lower())
@@ -85,16 +81,13 @@ def _extrair_lista(payload: Any) -> list[dict]:
             valor = payload.get(chave)
             if isinstance(valor, list):
                 return valor
-    raise ValueError(
-        "Formato inesperado na resposta de listagem de atas — "
-        "rode scripts/inspecionar_api_atas.py e ajuste _extrair_lista."
-    )
+    raise ValueError("Formato inesperado na resposta de listagem de atas.")
 
 
 @dataclass
 class ReuniaoCopom:
     numero_reuniao: int
-    data: str | None
+    data: str  # "AAAA-MM-DD", formato confirmado de dataReferencia
     item_bruto: dict
 
 
@@ -112,86 +105,41 @@ def listar_reunioes(
 
     reunioes = []
     for item in itens:
-        numero = _obter_campo(
-            item,
-            "nroReuniao",
-            "NumeroReuniao",
-            "numeroReuniao",
-            "numero_reuniao",
-            "Reuniao",
-            "reuniao",
-        )
-        if numero is None:
+        numero = _obter_campo(item, "nroReuniao", "NumeroReuniao", "numeroReuniao")
+        data = _obter_campo(item, "dataReferencia", "DataReferencia")
+        if numero is None or data is None:
             continue
         numero = int(numero)
         if numero < a_partir_de:
             continue
-        data = _obter_campo(
-            item, "DataReferencia", "dataReferencia", "data_referencia", "Data", "data"
-        )
         reunioes.append(ReuniaoCopom(numero_reuniao=numero, data=data, item_bruto=item))
 
     reunioes.sort(key=lambda r: r.numero_reuniao)
     return reunioes
 
 
-def _url_detalhe_da_listagem(item_bruto: dict) -> str | None:
-    """Se o item da listagem já traz uma URL de detalhe, usa-a diretamente."""
-    return _obter_campo(item_bruto, "Url", "url", "UrlDetalhe", "urlDetalhe")
-
-
-def buscar_html_ata(sessao: requests.Session, reuniao: ReuniaoCopom) -> str:
-    """Baixa o HTML bruto da ata de uma reunião.
-
-    Prioriza uma URL de detalhe já presente no item da listagem; na ausência
-    dela, cai para uma chamada a `atas_detalhes` com `nroReuniao` como
-    parâmetro — confirmado contra a API real (a listagem usa a mesma
-    abreviação "nro", não "numero").
-    """
-    url_direta = _url_detalhe_da_listagem(reuniao.item_bruto)
-    if url_direta:
-        url_completa = (
-            url_direta if url_direta.startswith("http") else f"https://www.bcb.gov.br{url_direta}"
-        )
-        resposta = sessao.get(url_completa, timeout=TIMEOUT_SEGUNDOS)
-    else:
-        resposta = sessao.get(
-            URL_DETALHES,
-            params={"nroReuniao": reuniao.numero_reuniao},
-            timeout=TIMEOUT_SEGUNDOS,
-        )
-    resposta.raise_for_status()
-
-    payload = resposta.json()
-    conteudo = payload.get("conteudo", payload) if isinstance(payload, dict) else {}
-    html = _obter_campo(
-        conteudo, "TextoAta", "textoAta", "Ata", "ata", "Texto", "texto", "Corpo", "corpo", "HtmlAta"
+def _montar_url_pdf_ata(reuniao: ReuniaoCopom) -> str:
+    """Monta a URL do PDF da ata a partir do padrão confirmado contra o site real."""
+    data_compacta = reuniao.data.replace("-", "")
+    return (
+        "https://www.bcb.gov.br/content/copom/atascopom/"
+        f"Copom{reuniao.numero_reuniao}-not{data_compacta}{reuniao.numero_reuniao}.pdf"
     )
-    if html is None:
-        raise ValueError(
-            f"Não encontrei o texto da ata da reunião {reuniao.numero_reuniao} no JSON de "
-            "detalhes — rode scripts/inspecionar_api_atas.py e ajuste buscar_html_ata."
-        )
-    return html
 
 
-def limpar_html_ata(html: str) -> str:
-    """Limpa o HTML de uma ata: remove script/style/sup e notas de rodapé, normaliza espaços."""
-    sopa = BeautifulSoup(html, "html.parser")
+def baixar_pdf_ata(sessao: requests.Session, reuniao: ReuniaoCopom) -> bytes:
+    """Baixa os bytes do PDF da ata de uma reunião."""
+    url_pdf = _montar_url_pdf_ata(reuniao)
+    resposta = sessao.get(url_pdf, timeout=TIMEOUT_SEGUNDOS)
+    resposta.raise_for_status()
+    return resposta.content
 
-    for tag in sopa(["script", "style", "sup"]):
-        tag.decompose()
 
-    # Notas de rodapé costumam vir marcadas por classe/id contendo "nota" ou
-    # "footnote" nos sites do BCB; removidas por seletor CSS tolerante.
-    for elemento in sopa.select(
-        '[class*="footnote"], [id*="footnote"], [class*="nota-rodape"], [id*="nota-rodape"]'
-    ):
-        elemento.decompose()
-
-    texto = sopa.get_text(separator=" ")
-    texto = re.sub(r"\s+", " ", texto).strip()
-    return texto
+def extrair_texto_pdf(conteudo_pdf: bytes) -> str:
+    """Extrai o texto de um PDF de ata e normaliza espaços em branco."""
+    leitor = PdfReader(io.BytesIO(conteudo_pdf))
+    texto = " ".join(pagina.extract_text() or "" for pagina in leitor.pages)
+    return re.sub(r"\s+", " ", texto).strip()
 
 
 def extrair_secoes_a_b(
@@ -230,18 +178,18 @@ def extrair_secoes_a_b(
 
 
 def coletar_atas(a_partir_de: int = REUNIAO_MINIMA) -> list[Document]:
-    """Coleta, limpa e empacota as atas do Copom a partir da reunião informada.
+    """Coleta, extrai e empacota as atas do Copom a partir da reunião informada.
 
     Retorna uma lista de `Document` (langchain_core) com `page_content` já
-    limpo e `metadata = {"nro_reuniao": ..., "data": ...}`.
+    extraído do PDF e `metadata = {"nro_reuniao": ..., "data": ...}`.
     """
     sessao = criar_sessao_com_retry()
     reunioes = listar_reunioes(sessao, a_partir_de=a_partir_de)
 
     documentos = []
     for reuniao in reunioes:
-        html = buscar_html_ata(sessao, reuniao)
-        texto_limpo = limpar_html_ata(html)
+        conteudo_pdf = baixar_pdf_ata(sessao, reuniao)
+        texto_limpo = extrair_texto_pdf(conteudo_pdf)
         documentos.append(
             Document(
                 page_content=texto_limpo,

@@ -11,9 +11,9 @@ pydantic
 # injetar as variáveis de ambiente sozinho.
 python-dotenv
 
-# Coleta e limpeza das atas do BCB
+# Coleta das atas do BCB (publicadas como PDF) e extração de texto
 requests
-beautifulsoup4
+pypdf
 
 # Dados
 pandas
