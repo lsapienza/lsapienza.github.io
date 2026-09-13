@@ -1,16 +1,16 @@
 """Coleta da série SGS 432 (meta Selic definida pelo Copom) e cálculo da
 variação em torno de cada reunião.
 
-Diferente da API de atas do Copom, a API do SGS (Sistema Gerenciador de
-Séries Temporais) é um contrato público estável e amplamente documentado
-do BCB, no mesmo formato há muitos anos — a confiança no formato usado
-abaixo é bem mais alta do que a do módulo `atas_copom`. Ainda assim, este
-ambiente de desenvolvimento não tem acesso de rede a bcb.gov.br, então
-nada aqui foi testado contra uma resposta real; confirme o formato antes
-de citar qualquer variação de Selic no paper (regra de ouro do projeto).
+Confirmado contra a API real: séries de periodicidade diária (como a 432)
+só aceitam uma janela de consulta de no máximo 10 anos por chamada — sem
+`dataInicial`/`dataFinal`, a API tenta devolver a série inteira (décadas)
+e recusa com 406, retornando essa regra explicada no corpo do erro.
+`baixar_serie_selic()` sempre informa os dois parâmetros por isso.
 """
 
 from __future__ import annotations
+
+from datetime import date
 
 import pandas as pd
 
@@ -18,17 +18,29 @@ from .atas_copom import TIMEOUT_SEGUNDOS, criar_sessao_com_retry
 
 URL_SGS_SELIC = "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados"
 
+# Margem confortável antes da 232ª reunião (05/08/2020, escopo mínimo do
+# projeto) sem estourar a janela de 10 anos até hoje.
+DATA_INICIAL_PADRAO = "01/01/2018"
 
-def baixar_serie_selic() -> pd.DataFrame:
-    """Baixa a série completa da meta Selic (% a.a.) do SGS 432.
 
-    Retorna um DataFrame com colunas `data` (datetime64) e `valor` (float),
-    ordenado por data. A série é diária, mas só muda de valor nos dias em
-    que o Copom decide alterar a meta.
+def baixar_serie_selic(
+    data_inicial: str = DATA_INICIAL_PADRAO, data_final: str | None = None
+) -> pd.DataFrame:
+    """Baixa a série da meta Selic (% a.a.) do SGS 432 entre duas datas.
+
+    `data_inicial`/`data_final` no formato "dd/mm/aaaa", exigido pela API.
+    `data_final` default é hoje. Retorna um DataFrame com colunas `data`
+    (datetime64) e `valor` (float), ordenado por data. A série é diária,
+    mas só muda de valor nos dias em que o Copom decide alterar a meta.
     """
+    if data_final is None:
+        data_final = date.today().strftime("%d/%m/%Y")
+
     sessao = criar_sessao_com_retry()
     resposta = sessao.get(
-        URL_SGS_SELIC, params={"formato": "json"}, timeout=TIMEOUT_SEGUNDOS
+        URL_SGS_SELIC,
+        params={"formato": "json", "dataInicial": data_inicial, "dataFinal": data_final},
+        timeout=TIMEOUT_SEGUNDOS,
     )
     resposta.raise_for_status()
 
