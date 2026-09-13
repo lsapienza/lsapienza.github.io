@@ -1,4 +1,4 @@
-"""Gera os dois gráficos do Índice de Tom (plotnine) e salva em PNG.
+"""Gera os três gráficos do Índice de Tom (plotnine) e salva em PNG.
 
 Lê data/tabela_final.csv e data/tabela_calibracao.csv (geradas por
 scripts/montar_tabela_final.py e scripts/calibrar_modelos.py).
@@ -19,7 +19,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 import pandas as pd  # noqa: E402
-from visualizacao.graficos import grafico_indice_tom_calibrado, grafico_zscore_tom  # noqa: E402
+from visualizacao.graficos import (  # noqa: E402
+    grafico_comparativo_selic,
+    grafico_indice_tom_calibrado,
+    grafico_zscore_tom,
+)
 
 DIRETORIO_DADOS = Path(__file__).resolve().parent.parent / "data"
 DIRETORIO_FIGURAS = DIRETORIO_DADOS / "figuras"
@@ -38,6 +42,11 @@ def main() -> None:
 
     grafico2 = grafico_zscore_tom(tabela_final)
     grafico2.save(DIRETORIO_FIGURAS / "zscore_tom.png", dpi=200, verbose=False)
+
+    grafico3 = grafico_comparativo_selic(tabela_final, tabela_calibracao)
+    grafico3.save(
+        DIRETORIO_FIGURAS / "comparativo_selic.png", dpi=200, verbose=False
+    )
 
     print(f"Gráficos salvos em {DIRETORIO_FIGURAS}")
 

@@ -110,6 +110,58 @@ def grafico_indice_tom_calibrado(
     )
 
 
+def montar_dados_comparativo_selic(
+    tabela_final: pd.DataFrame, tabela_calibracao: pd.DataFrame
+) -> pd.DataFrame:
+    """Empilha o tom calibrado (p.p.) de cada LLM com a variação REAL da
+    Selic, na mesma unidade e no mesmo eixo de tempo — para comparar
+    visualmente, reunião a reunião, o quanto o tom "previsto" acompanha a
+    decisão de fato. Formato longo (data, serie, valor_pp).
+    """
+    dados_calibrado = montar_dados_indice_calibrado(tabela_final, tabela_calibracao)
+    dados_calibrado = dados_calibrado.rename(columns={"modelo": "serie", "valor_pp": "valor_pp"})
+
+    dados_selic = tabela_final[["data", "variacao_selic"]].dropna().copy()
+    dados_selic["serie"] = "Variação real da Selic"
+    dados_selic = dados_selic.rename(columns={"variacao_selic": "valor_pp"})
+
+    return pd.concat(
+        [dados_calibrado[["data", "serie", "valor_pp"]], dados_selic[["data", "serie", "valor_pp"]]],
+        ignore_index=True,
+    )
+
+
+def grafico_comparativo_selic(
+    tabela_final: pd.DataFrame, tabela_calibracao: pd.DataFrame
+) -> ggplot:
+    """Tom calibrado (p.p.) de cada LLM sobreposto à variação real da Selic.
+
+    A variação real entra em preto (destacada como referência); os LLMs
+    seguem a mesma paleta dos outros gráficos. É a comparação direta que
+    os outros dois gráficos não mostram: eles só desenham o tom em si, não
+    o alvo que ele tenta explicar lado a lado.
+    """
+    dados = montar_dados_comparativo_selic(tabela_final, tabela_calibracao)
+    dados["data"] = pd.to_datetime(dados["data"])
+
+    paleta = dict(PALETA_MODELOS)
+    paleta["Variação real da Selic"] = "#111111"
+
+    return (
+        ggplot(dados, aes(x="data", y="valor_pp", color="serie"))
+        + geom_hline(yintercept=0, linetype="dashed", color="gray")
+        + geom_line(size=1)
+        + scale_color_manual(values=paleta)
+        + labs(
+            title="Tom calibrado vs. variação real da Selic",
+            x="Data da reunião",
+            y="p.p.",
+            color="Série",
+        )
+        + TEMA_PADRAO
+    )
+
+
 def grafico_zscore_tom(tabela_final: pd.DataFrame) -> ggplot:
     """Z-score do tom (surpresa de comunicação), uma linha por LLM."""
     dados = montar_dados_zscore(tabela_final)
