@@ -51,16 +51,22 @@ def baixar_serie_selic(
 
 
 def calcular_variacao_por_reuniao(
-    serie_selic: pd.DataFrame, datas_reuniao: pd.Series
+    serie_selic: pd.DataFrame, datas_reuniao: pd.Series, dias_apos: int = 10
 ) -> pd.Series:
     """Calcula, para cada data de reunião, a variação da meta Selic decidida nela.
 
-    variação = (valor vigente logo após a reunião) - (valor vigente
-    imediatamente antes dela). "Antes" é o último valor da série com data
-    estritamente anterior à reunião; "depois" é o primeiro valor dentro de
-    uma janela de até 5 dias após a reunião (a mudança de meta costuma
-    valer a partir do dia seguinte à decisão) — essa janela é uma
-    suposição razoável, não confirmada contra dados reais nesta sandbox.
+    variação = (valor vigente `dias_apos` dias depois da reunião) - (valor
+    vigente imediatamente antes dela).
+
+    "Antes" é o último valor da série com data estritamente anterior à
+    reunião. "Depois" NÃO é "o primeiro valor a partir da data da
+    reunião" — testado contra dados reais e sempre dava variação 0,
+    porque a série é diária e o dia da própria reunião (e às vezes mais
+    alguns) ainda reflete a taxa antiga, já que a mudança de meta leva
+    alguns dias para entrar em vigor. Em vez disso, "depois" busca o
+    último valor conhecido até `dias_apos` dias após a reunião — folga
+    suficiente para garantir que a mudança já entrou em vigor, sem
+    alcançar a reunião seguinte (o Copom se reúne a cada ~45 dias).
 
     Retorna uma Series alinhada por posição a `datas_reuniao` (mesma
     ordem/índice de entrada), não ordenada por data internamente.
@@ -70,7 +76,9 @@ def calcular_variacao_por_reuniao(
             "_ordem": range(len(datas_reuniao)),
             "data_reuniao": pd.to_datetime(pd.Series(datas_reuniao).reset_index(drop=True)),
         }
-    ).sort_values("data_reuniao")
+    )
+    reunioes["data_depois"] = reunioes["data_reuniao"] + pd.Timedelta(days=dias_apos)
+    reunioes = reunioes.sort_values("data_reuniao")
 
     serie_antes = serie_selic.rename(columns={"data": "data_valor", "valor": "valor_antes"})
     serie_depois = serie_selic.rename(columns={"data": "data_valor", "valor": "valor_depois"})
@@ -84,12 +92,11 @@ def calcular_variacao_por_reuniao(
         allow_exact_matches=False,
     )
     com_ambos = pd.merge_asof(
-        com_antes,
+        com_antes.sort_values("data_depois"),
         serie_depois,
-        left_on="data_reuniao",
+        left_on="data_depois",
         right_on="data_valor",
-        direction="forward",
-        tolerance=pd.Timedelta(days=5),
+        direction="backward",
     )
 
     com_ambos["variacao_selic"] = com_ambos["valor_depois"] - com_ambos["valor_antes"]
