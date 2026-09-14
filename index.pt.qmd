@@ -15,7 +15,7 @@ toc: false
 
 Economista com mais de 20 anos de mercado financeiro, ex-Chief Economist do banco BV. Hoje à frente da LS Consultoria Econômica, analisando o cenário macro e ajudando pessoas e empresas a decidir melhor.
 
-- [Github](https://github.com/lsapienza)
+- [![GitHub](https://shields.io)](https://github.com)(https://github.com/lsapienza)
 - [LinkedIn](https://linkedin.com/in/leonardo-sapienza)
 - [Email](mailto:ldsapienza@uol.com.br)
 - [Sobre](about.pt.qmd)
