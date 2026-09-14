@@ -13,7 +13,7 @@ project:
 lang: pt
 
 website:
-  title: **Leonardo Sapienza**
+  title: "**Leonardo Sapienza**"
   description: "Site pessoal de Leonardo Sapienza - Analisando o cenário macro e ajudando pessoas e empresas a decidir melhor."
   navbar:
     left:
