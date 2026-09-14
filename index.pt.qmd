@@ -13,7 +13,7 @@ toc: false
 
 ## Leonardo Sapienza
 
-Economista com mais de 20 anos de mercado financeiro, ex-Chief Economist do banco BV. Hoje à frente da LS Consultoria Econômica, analisando o cenário macro e ajudando pessoas e empresas a decidir melhor.
+Economista com mais de 20 anos de mercado financeiro, ex-Economista-Chefe do banco BV. Hoje à frente da LS Consultoria Econômica, analisando o cenário macro e ajudando pessoas e empresas a decidir melhor.
 
 <div class="social-links">
   <a href="https://github.com/lsapienza" target="_blank"><i class="bi bi-github"></i> GitHub</a>
