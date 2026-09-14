@@ -3,7 +3,14 @@ title: "Sobre"
 output-file: about.html
 ---
 
-# Sobre Seu Nome
+# Leonardo Sapienza
 
-Biografia de exemplo. Substitua por informações reais: histórico, interesses
-e como entrar em contato.
+Sou economista, com mais de 20 anos de carreira construída no mercado financeiro nacional e internacional. Ao longo desse tempo, passei por praticamente todas as frentes que moldam a tomada de decisão financeira: Tesouraria, Mercado de Capitais, Crédito, Mesa de Operações, Planejamento Financeiro, Riscos e Relações com Investidores.
+
+Boa parte dessa trajetória foi construída no banco BV, onde atuei por mais de 22 anos, dos quais os últimos como Chief Economist. Nessa posição, fui responsável por estruturar e liderar a área de macroeconomia do banco, desenvolvendo cenários e monitorando indicadores domésticos e internacionais para apoiar uma área de gestão de ativos líquidos com quase R$20 bilhões sob gestão. Also geri diretamente uma carteira de fundo multimercado de cerca de R$400 milhões, participei de comitês de investimento, alocação de ativos e comitês executivos, e representei o banco em eventos internacionais como Felaban, Banco Mundial e FMI.
+
+Tenho graduação em Economia pela USP e mestrado pela FGV, além das certificações ANBIMA (CFG, CGA e CGE). Também tive a experiência de lecionar macroeconomia, o que reforçou meu gosto por transformar temas complexos em conteúdo acessível — algo que carrego para este blog.
+
+Desde 2023, sou fundador e economista-chefe da LS Consultoria Econômica, onde ofereço análises e soluções personalizadas para que clientes tomem decisões mais informadas, antecipem mudanças de cenário e identifiquem oportunidades de crescimento sustentável. É também aqui que produzo relatórios semanais com os principais indicadores econômicos.
+
+Este espaço nasce dessa mesma vocação: acompanhar de perto a economia brasileira e global e compartilhar essa leitura de forma clara e direta.
