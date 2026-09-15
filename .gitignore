@@ -15,3 +15,11 @@
 /*-listing.json
 /listings.json
 /search.json
+
+# resumo-focus — ferramenta interna isolada nesta subpasta (ver
+# resumo-focus/CLAUDE.md). data/*.pdf e data/*.txt SÃO versionados de
+# propósito (o Estágio 1 do pipeline os commita); só o ambiente local e
+# caches ficam de fora.
+/resumo-focus/.venv/
+/resumo-focus/**/__pycache__/
+/resumo-focus/.pytest_cache/

@@ -1,0 +1,82 @@
+# =============================================================================
+# ESTÁGIO 3/3 do pipeline resumo-focus: ENVIO DO E-MAIL (determinístico).
+#
+# Este repositório também hospeda o site pessoal (Quarto) publicado por esta
+# mesma branch main. Para não misturar as duas coisas, todo o código do
+# resumo-focus vive isolado em resumo-focus/ — só os workflows (que o GitHub
+# Actions exige em .github/workflows/ na raiz) ficam fora dessa subpasta.
+#
+# Este workflow só faz o que é mecânico: pegar o HTML já pronto (redigido
+# pelo agente no Estágio 2) e enviá-lo por e-mail via SMTP. Nenhuma
+# interpretação acontece aqui (ver CLAUDE.md — princípio de separação entre
+# determinístico e julgamento).
+#
+# Como os três estágios se encaixam:
+#   (1) .github/workflows/focus-download.yml — baixa o PDF e extrai o texto,
+#       commitando data/focus_*.{pdf,txt} em `main` (agendado, toda segunda).
+#   (2) Rotina do agente (fora deste repositório de workflows — configurada
+#       via `/schedule`/CronCreate) — lê o texto do Estágio 1, redige o
+#       resumo executivo e commita output/focus/focus_AAAA-MM-DD.html em
+#       `main`.
+#   (3) ESTE WORKFLOW — disparado pelo push do HTML feito no Estágio 2,
+#       envia esse HTML como corpo do e-mail via src/enviar_email.py.
+#
+# ATENÇÃO — mesma pegadinha do GITHUB_TOKEN documentada em
+# focus-download.yml: o gatilho `on: push` abaixo só dispara se o commit do
+# Estágio 2 for feito com um Personal Access Token (PAT) ou token de GitHub
+# App — um push feito com o GITHUB_TOKEN padrão do Actions NÃO dispara outros
+# workflows. Se o Estágio 2 usar o token padrão, troque o gatilho abaixo por
+# `on: workflow_run` apontando para o nome do workflow do Estágio 2.
+#
+# Secrets necessários (Settings -> Secrets and variables -> Actions):
+#   GMAIL_USUARIO               conta Gmail usada para autenticar e enviar
+#   GMAIL_SENHA_APP              senha de app do Gmail (não é a senha normal;
+#                                requer verificação em 2 etapas ativada na
+#                                conta para gerar uma senha de app)
+#   FOCUS_EMAIL_DESTINATARIOS    destinatários, separados por vírgula
+# =============================================================================
+
+name: "Focus (3/3) - Envio do e-mail"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "resumo-focus/output/focus/focus_*.html"
+  # Permite reenviar manualmente (ex.: reenviar o resumo mais recente após
+  # uma falha de SMTP) sem precisar de um novo commit.
+  workflow_dispatch: {}
+
+# Este job só lê arquivos do repositório e envia e-mail; não precisa
+# escrever de volta no repositório.
+permissions:
+  contents: read
+
+concurrency:
+  group: focus-email
+  cancel-in-progress: false
+
+jobs:
+  enviar-email:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: resumo-focus
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Enviar o resumo mais recente por e-mail
+        env:
+          GMAIL_USUARIO: ${{ secrets.GMAIL_USUARIO }}
+          GMAIL_SENHA_APP: ${{ secrets.GMAIL_SENHA_APP }}
+          FOCUS_EMAIL_DESTINATARIOS: ${{ secrets.FOCUS_EMAIL_DESTINATARIOS }}
+        run: python src/enviar_email.py

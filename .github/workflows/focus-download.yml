@@ -1,0 +1,121 @@
+# =============================================================================
+# ESTÁGIO 1/3 do pipeline resumo-focus: DOWNLOAD + EXTRAÇÃO (determinístico).
+#
+# Este repositório também hospeda o site pessoal (Quarto) publicado por esta
+# mesma branch main. Para não misturar as duas coisas, todo o código do
+# resumo-focus vive isolado em resumo-focus/ — só os workflows (que o GitHub
+# Actions exige em .github/workflows/ na raiz) ficam fora dessa subpasta.
+# Por isso os steps abaixo usam `defaults.run.working-directory: resumo-focus`.
+#
+# Este workflow só faz o que é mecânico: baixar o PDF do Focus e extrair o
+# texto bruto. Nenhuma interpretação acontece aqui (ver CLAUDE.md — princípio
+# de separação entre determinístico e julgamento).
+#
+# Como os três estágios se encaixam:
+#
+#   (1) ESTE WORKFLOW (agendado, toda segunda 09h15 BRT)
+#       baixar_focus.py -> data/focus_AAAA-MM-DD.pdf
+#       extrair_texto.py -> data/focus_AAAA-MM-DD.txt
+#       commit + push desses dois arquivos em `main`.
+#
+#   (2) ROTINA DO AGENTE (fora deste arquivo — configurada via `/schedule` ou
+#       CronCreate, rodando como agente Claude, não como job determinístico)
+#       Lê o data/focus_*.txt mais recente já commitado por este workflow,
+#       valida frescor/integridade, redige o resumo executivo (a parte de
+#       julgamento) e gera output/focus/focus_AAAA-MM-DD.html, commitando o
+#       resultado em `main`.
+#       Disparo recomendado: agendar essa rotina para rodar ALGUM TEMPO DEPOIS
+#       deste workflow (ex.: 09h45 BRT), ou — de forma mais robusta — fazer
+#       essa rotina reagir à conclusão deste workflow via gatilho
+#       `workflow_run` em vez de um horário fixo, já que `workflow_run` dispara
+#       após o job terminar com sucesso, independente de quanto tempo ele leve.
+#
+#   (3) WORKFLOW DE ENVIO DE E-MAIL (fora deste arquivo)
+#       Disparado por `on: push` filtrando o caminho `output/focus/*.html`,
+#       ou seja, é acionado pelo commit que o estágio (2) faz.
+#
+#   ATENÇÃO — pegadinha do GITHUB_TOKEN:
+#       Um push feito usando o GITHUB_TOKEN padrão de um workflow do GitHub
+#       Actions NÃO dispara outros workflows via `on: push` (é uma proteção
+#       do próprio GitHub contra loops recursivos de workflow disparando
+#       workflow). Isso não afeta ESTE arquivo (que só baixa/extrai dados),
+#       mas afeta diretamente a conexão entre os estágios (2) e (3): se a
+#       rotina do agente no estágio (2) commitar o HTML usando o token
+#       padrão, o push NÃO vai disparar o workflow de e-mail do estágio (3).
+#       Duas soluções possíveis:
+#         a) o estágio (2) faz o commit usando um Personal Access Token (PAT)
+#            ou um token de GitHub App em vez do GITHUB_TOKEN padrão; ou
+#         b) o estágio (3) troca o gatilho `on: push` por `on: workflow_run`
+#            apontando para o nome do workflow do estágio (2) — esse gatilho
+#            funciona independentemente de qual token fez o push, pois reage
+#            à conclusão do workflow, não ao evento de push em si.
+# =============================================================================
+
+name: "Focus (1/3) - Download e Extração"
+
+on:
+  schedule:
+    # 09h15 no horário de Brasília (BRT = UTC-3, sem horário de verão desde
+    # 2019) = 12h15 UTC, toda segunda-feira. Se a segunda for feriado e o
+    # Focus não tiver sido publicado ainda, baixar_focus.py recua os dias
+    # sozinho (ver lógica de retry em src/baixar_focus.py); não é necessário
+    # tratar feriado aqui no workflow.
+    - cron: "15 12 * * 1"
+  # Permite disparo manual pela aba Actions — útil para reprocessar uma
+  # semana específica ou depurar o workflow sem esperar a segunda-feira.
+  workflow_dispatch: {}
+
+# Necessário para o job poder commitar e dar push em `main`.
+permissions:
+  contents: write
+
+# Evita que uma execução agendada se sobreponha a um disparo manual
+# concorrente (ex.: alguém rodando workflow_dispatch no mesmo horário do cron).
+concurrency:
+  group: focus-download
+  cancel-in-progress: false
+
+jobs:
+  baixar-e-extrair:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: resumo-focus
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Baixar o Boletim Focus mais recente
+        run: python src/baixar_focus.py
+
+      - name: Extrair texto do PDF baixado
+        run: |
+          set -euo pipefail
+          # baixar_focus.py não imprime o caminho em formato consumível, então
+          # localizamos o PDF mais recentemente modificado em data/. Como este
+          # step roda logo após o download, é sempre o arquivo que acabou de
+          # ser salvo.
+          PDF_MAIS_RECENTE=$(ls -t data/focus_*.pdf | head -n 1)
+          echo "Extraindo texto de: $PDF_MAIS_RECENTE"
+          python src/extrair_texto.py "$PDF_MAIS_RECENTE"
+
+      - name: Commitar PDF e texto extraído
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/focus_*.pdf data/focus_*.txt
+          if git diff --cached --quiet; then
+            echo "Nada novo para commitar (PDF/texto já estavam atualizados)."
+          else
+            git commit -m "Focus: dados brutos de $(date -u +%F)"
+            git push
+          fi
