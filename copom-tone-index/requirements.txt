@@ -1,0 +1,38 @@
+# LLMs em paralelo (LangChain + adaptadores por provedor)
+langchain
+langchain-google-genai
+langchain-anthropic
+langchain-openai
+
+# Saída estruturada dos LLMs
+pydantic
+
+# Carrega .env nos scripts de pontuação, sem depender de o terminal/editor
+# injetar as variáveis de ambiente sozinho.
+python-dotenv
+
+# Coleta das atas do BCB (publicadas como PDF) e extração de texto
+requests
+pypdf
+
+# Dados
+pandas
+numpy
+
+# Calibração (OLS com inferência) e métricas
+statsmodels
+scikit-learn
+scipy
+
+# Gráficos estilo ggplot
+plotnine
+
+# Renderização de Python pelo Quarto
+jupyter
+
+# CLI do Quarto (para `quarto render` gerar o paper em PDF) — o instalador
+# oficial (quarto.org/GitHub) pode não ser alcançável em todo ambiente;
+# este pacote do PyPI empacota o mesmo binário. Requer também um motor
+# LaTeX no sistema (ex.: `apt install texlive-latex-extra texlive-lang-portuguese`)
+# com os pacotes booktabs e threeparttable.
+quarto-cli

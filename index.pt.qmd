@@ -1,5 +1,5 @@
 ---
-title: "Início"
+title: "Leonardo Sapienza"
 output-file: index.html
 page-layout: full
 toc: false
@@ -10,14 +10,17 @@ toc: false
 ::: {.home-left}
 ![](assets/img/profile.jpg){.profile-photo}
 
-## Seu Nome
 
-Biografia de exemplo — substitua por uma apresentação real: quem você é, o
-que você faz e o que os visitantes encontrarão neste site.
+## Leonardo Sapienza
 
-- [LinkedIn](https://www.linkedin.com/in/seu-usuario)
-- [Email](mailto:seu-email@exemplo.com)
-- [Sobre](about.pt.qmd)
+Economista com mais de 20 anos de mercado financeiro, ex-Economista-Chefe do banco BV. Hoje à frente da LS Consultoria Econômica, analisando o cenário macro e ajudando pessoas e empresas a decidir melhor.
+
+<div class="social-links">
+  <a href="https://github.com/lsapienza" target="_blank"><i class="bi bi-github"></i> GitHub</a>
+  <a href="https://linkedin.com/in/leonardo-sapienza" target="_blank"><i class="bi bi-linkedin"></i> LinkedIn</a>
+  <a href="mailto:ldsapienza@uol.com.br"><i class="bi bi-envelope"></i> Email</a>
+  <a href="about.pt.qmd"><i class="bi bi-person"></i> Sobre</a>
+</div>
 :::
 
 ::: {.home-right}

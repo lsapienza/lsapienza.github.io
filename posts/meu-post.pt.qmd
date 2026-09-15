@@ -1,0 +1,9 @@
+---
+title: "Título do post"
+date: 2026-09-13
+description: "Uma frase curta descrevendo o post."
+output-file: meu-post.html
+categories: [economia]
+---
+
+Conteúdo do post aqui, em markdown normal.

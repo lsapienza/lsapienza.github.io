@@ -2,6 +2,11 @@
 
 **/*.quarto_ipynb
 
+# docs/ agora é gerado e publicado pelo GitHub Actions
+# (.github/workflows/publish.yml) a cada push em main — não precisa mais
+# ser commitado. build.ps1 continua útil para prévia local.
+/docs/
+
 # Raw source photos dropped at the project root — only the converted,
 # committed copy under assets/img/ is meant to ship.
 /*.heic

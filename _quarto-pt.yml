@@ -5,12 +5,16 @@ project:
   render:
     - "*.pt.qmd"
     - "posts/*.pt.qmd"
+    # copom-tone-index/ é um projeto Quarto à parte (tem seu próprio
+    # _quarto.yml) — excluído por precaução, mesmo que nenhum arquivo de
+    # lá bata com "*.pt.qmd" hoje.
+    - "!copom-tone-index/**"
 
 lang: pt
 
 website:
-  title: "Seu Nome"
-  description: "Site pessoal de Seu Nome — substitua por uma descrição real em uma linha."
+  title: "**LS**"
+  description: "Site pessoal de Leonardo Sapienza - Analisando o cenário macro e ajudando pessoas e empresas a decidir melhor."
   navbar:
     left:
       - href: index.pt.qmd
@@ -21,14 +25,14 @@ website:
         text: Blog
     right:
       - icon: linkedin
-        href: "https://www.linkedin.com/in/seu-usuario"
+        href: https://www.linkedin.com/in/leonardo-sapienza
         aria-label: LinkedIn
         target: _blank
       - icon: envelope
-        href: "mailto:seu-email@exemplo.com"
+        href: mailto:ldsapienza@uol.com.br
         aria-label: Email
       - text: EN
         href: "#language-switch"
         aria-label: "View in English"
   page-footer:
-    center: "© 2026 Seu Nome · versão em português"
+    center: "© 2026 Leonardo Sapienza · versão em português"

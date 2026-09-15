@@ -1,0 +1,2 @@
+modelo_a,modelo_b,n,estatistica_v,p_valor,conclusao
+Gemini,Léxico (baseline),47,3.221314444740088,0.0012760406155705173,"Gemini explica variacao_selic significativamente melhor (Vuong, p=0.0013 < 0.05)"

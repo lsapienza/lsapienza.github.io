@@ -1,0 +1,555 @@
+---
+title: "Índice de Tom das Atas do Copom"
+author: "Análise Macro"
+lang: pt-BR
+format:
+  pdf:
+    documentclass: article
+    pdf-engine: pdflatex
+    fontsize: 11pt
+    geometry: margin=2.5cm
+    number-sections: true
+    toc: false
+    include-in-header: preambulo.tex
+    colorlinks: true
+    keep-tex: true
+    # Sem isso, figuras (assim como as tabelas em tabelas_latex.py) são
+    # floats livres e o LaTeX pode empurrá-las para antes do heading da
+    # seção em que deveriam aparecer -- confirmado rodando com dados
+    # reais (a seção "5.5 Figuras" saía depois das 3 figuras). "H" (do
+    # pacote float, carregado em preambulo.tex) fixa cada figura no
+    # lugar exato em que é impressa.
+    fig-pos: "H"
+bibliography: referencias.bib
+jupyter: copom-tone-index
+execute:
+  echo: false
+  warning: false
+  error: true
+---
+
+```{=latex}
+\begin{titlepage}
+\centering
+\includegraphics[width=4cm]{figuras/logo_analise_macro_placeholder.png}\par
+\vspace{2cm}
+{\LARGE \textbf{Índice de Tom das Atas do Copom}}\par
+\vspace{0.5cm}
+{\large Calibração via LLMs em Paralelo e Baseline Léxico}\par
+\vspace{2.5cm}
+{\large [Nome do(a) autor(a)]}\par
+\vspace{0.2cm}
+Análise Macro\par
+\vspace{0.2cm}
+\today\par
+\vfill
+{\small Rascunho de pesquisa em andamento — ver Seção~\ref{sec-proximos-passos}}
+\end{titlepage}
+```
+
+# Resumo {.unnumbered}
+
+Este paper descreve a construção de um Índice de Tom para as atas do
+Comitê de Política Monetária (Copom) do Banco Central do Brasil, numa
+escala contínua de $-3$ (fortemente dovish) a $+3$ (fortemente hawkish).
+O tom é medido de quatro formas independentes sobre o mesmo texto —
+três Large Language Models (LLMs) em paralelo (Gemini, Claude e OpenAI)
+mais um baseline léxico hawkish/dovish — e calibrado contra a variação
+efetiva da meta Selic decidida em cada reunião, via regressão OLS. A
+robustez da calibração é avaliada em três exercícios complementares
+(in-sample, holdout e walk-forward), e a comparação entre modelos é
+formalizada pelo teste de Vuong para modelos não aninhados. Este
+documento é gerado inteiramente por código executável — tabelas e
+figuras vêm de chunks que leem os dados processados pelo pipeline do
+projeto, nunca de números digitados à mão. Nesta versão, o pipeline já
+rodou contra dados reais para o Gemini e para o baseline léxico (47-49
+reuniões, da 232ª à 280ª); Claude e OpenAI ainda faltam entrar na
+comparação (Seção~\ref{sec-proximos-passos}). Com os dois modelos já
+calibrados, o tom do Gemini explica de forma estatisticamente
+significativa a variação da Selic ($\hat\beta=0.32$, $p<0.001$,
+$R^2=0.30$), o que o baseline léxico não faz ($p=0.97$) — uma diferença
+confirmada como robusta pelo teste de Vuong ($p=0.0013$).
+
+# Introdução
+
+A comunicação de um banco central é, ela mesma, um instrumento de
+política monetária: o texto de uma ata pode sinalizar a trajetória futura
+dos juros tanto quanto a decisão numérica anunciada na própria reunião.
+Um comitê que eleva os juros mas descreve um cenário de inflação em
+convergência confortável para a meta está comunicando algo distinto de
+um comitê que eleva os juros alertando para riscos altistas persistentes
+— mesmo que a decisão numérica, isoladamente, seja idêntica nos dois
+casos. Capturar esse conteúdo qualitativo de forma sistemática e
+replicável é o problema que este projeto ataca.
+
+O objetivo deste trabalho é construir um **Índice de Tom** para as atas
+do Copom — hawkish (favorável a juros mais altos) ou dovish (favorável a
+juros mais baixos) — e **calibrá-lo** contra a variação da meta Selic
+decidida na própria reunião a que a ata se refere. A novidade
+metodológica central é comparar, sobre o mesmo texto e a mesma escala,
+quatro formas de pontuação: três LLMs de propósito geral, usados em
+paralelo com a mesma persona e as mesmas instruções, e um baseline léxico
+determinístico e sem custo de API, que serve de piso de comparação da
+literatura de dicionários. A pergunta que guia a Seção de Resultados não
+é apenas "qual modelo pontua melhor", mas **quando** essa diferença é
+estatisticamente robusta — e não um artefato de qual pedaço da amostra
+calhou de virar o teste.
+
+# Revisão da Literatura
+
+A ideia de medir o tom de um texto econômico por contagem de palavras
+direcionais remonta aos dicionários de análise textual em finanças, dos
+quais o mais influente é o de @loughranmcdonald2011, que mostrou que
+listas de palavras genéricas (como o Harvard-IV, usado fora do domínio
+financeiro) classificam mal o tom de documentos financeiros — um termo
+como "liability" é neutro em contabilidade, mas negativo num dicionário
+de propósito geral. A lição para este projeto é a mesma que motiva o
+léxico hawkish/dovish construído aqui: um dicionário precisa ser
+adaptado ao domínio (no nosso caso, o vocabulário de política monetária
+do Copom), não emprestado de outro contexto.
+
+Para atas de bancos centrais especificamente, @apelgrimaldi2012
+propuseram um método de contagem direcional aplicado às minutas do
+Riksbank (o banco central sueco), classificando sentenças como hawkish,
+dovish ou neutras e agregando essas contagens numa métrica de tom por
+reunião — o mesmo espírito da razão
+$(n_{\text{hawkish}} - n_{\text{dovish}})/(n_{\text{hawkish}} +
+n_{\text{dovish}})$ usada no baseline léxico deste projeto (Seção
+\ref{sec-metodologia}).
+
+Sobre o efeito macroeconômico da comunicação em si — não só da decisão
+numérica —, @hansenmcmahon2016 mostram, para o Federal Open Market
+Committee (FOMC) dos Estados Unidos, que o conteúdo textual das atas
+carrega informação com efeito real sobre expectativas e variáveis
+macroeconômicas, distinta do puro anúncio da taxa de juros. Isso
+sustenta a premissa deste projeto: vale a pena medir o tom textual como
+objeto de estudo por si, não apenas como uma reformulação da decisão já
+conhecida.
+
+Por fim, comparar formalmente o ajuste de dois modelos que explicam a
+mesma variável dependente com regressores diferentes e não aninhados —
+aqui, os quatro scores de tom explicando a mesma variação da Selic —
+não é resolvido por uma comparação direta de $R^2$. @vuong1989 propõe um
+teste, baseado na razão de verossimilhança ponto a ponto dos dois
+modelos, exatamente para esse cenário; é o teste usado na
+Seção~\ref{sec-metodologia} para comparar os quatro modelos deste
+projeto par a par.
+
+# Metodologia e Dados {#sec-metodologia}
+
+## Fontes de dados
+
+Duas fontes públicas do Banco Central do Brasil:
+
+1. **Atas do Copom**, via API pública em `bcb.gov.br`
+   (`/api/servico/sitebcb/copom/atas` para a listagem de reuniões e
+   `/api/servico/sitebcb/copom/atas_detalhes` para o texto de cada ata),
+   a partir da 232ª reunião.
+2. **Série SGS 432** (meta Selic definida pelo Copom), via API do
+   Sistema Gerenciador de Séries Temporais do BCB — usada para calcular
+   a variação da Selic decidida em cada reunião.
+
+## CRISP-DM
+
+O projeto segue as fases do CRISP-DM: Business Understanding (a pergunta
+da Introdução), Data Understanding e Data Preparation (coleta e limpeza
+das atas, Seção~\ref{sec-implementacao}), Modeling (os quatro
+classificadores de tom), Evaluation (calibração OLS e os três exercícios
+de robustez) e Deployment (este próprio documento).
+
+## Recorte do texto e escala do tom
+
+De cada ata, só as seções A ("Atualização da conjuntura") e B ("Cenários
+e riscos") são pontuadas — o texto é cortado antes da seção C
+("Condução da política monetária"), que trata a decisão de Selic já
+anunciada. Isso corta o texto por volume (a seção C costuma ser tão longa
+quanto A+B somadas, por listar votos e formalidades) sem perder sinal
+analítico, e evita vazar a própria decisão — o alvo da calibração — para
+dentro do texto que os LLMs leem para pontuar o tom.
+
+A escala do tom vai de $-3.0$ (fortemente dovish) a $+3.0$ (fortemente
+hawkish), com âncoras explícitas em cada ponto inteiro, dadas às três
+LLMs no mesmo bloco de instruções (persona de economista especializado
+em política monetária do BCB), instruídas a: avaliar apenas o tom
+implícito no diagnóstico e no balanço de riscos; ignorar a decisão de
+taxa já anunciada; focar em inflação, ancoragem de expectativas,
+balanço de riscos e forward guidance; usar valores intermediários em
+casos ambíguos; e manter consistência entre atas semelhantes.
+
+## Baseline léxico
+
+Um léxico pequeno de propósito (20 termos hawkish e 20 dovish, frases
+diretas do jargão do Copom) conta ocorrências e calcula
+
+$$
+\text{score}_{\text{léxico}} = 3 \times
+\frac{n_{\text{hawkish}} - n_{\text{dovish}}}{n_{\text{hawkish}} + n_{\text{dovish}}},
+$$
+
+sempre em $[-3, 3]$ por construção. É determinístico, sem custo de API
+e sem cache (o cálculo é instantâneo) — o piso da literatura de
+dicionários contra o qual medir se os LLMs de fato agregam sinal.
+
+## Calibração e comparação entre modelos
+
+Para cada um dos quatro modelos, uma regressão OLS simples:
+
+$$
+\Delta\text{Selic}_t = \alpha + \beta \cdot \text{score}_t + \varepsilon_t.
+$$
+
+A comparação entre dois modelos não aninhados (mesma variável
+dependente, regressores diferentes) usa o teste de Vuong
+[@vuong1989]: a estatística $V$ compara a log-verossimilhança gaussiana
+ponto a ponto dos dois ajustes, na interseção das observações em que
+ambos têm score; $V \sim \mathcal{N}(0,1)$ sob a hipótese de equivalência,
+e $|V| > 1.96$ ($p<0.05$) é o critério usado aqui para chamar a
+diferença de estatisticamente robusta — o sinal de $V$ diz qual dos dois
+modelos é favorecido.
+
+## Três exercícios de robustez
+
+1. **In-sample**: a própria inferência OLS ($\hat\beta$, IC 95\%, $R^2$).
+2. **Holdout**: calibra no treino (todas as reuniões exceto as últimas
+   seis) e mede RMSE/MAE nessas últimas seis, fora da amostra.
+3. **Walk-forward** (janela expansiva, treino mínimo de 20 atas): para
+   cada reunião a partir da 21ª, treina em tudo que veio antes e prevê
+   só essa reunião, repetindo por toda a amostra.
+
+O holdout sozinho é enganoso: se as últimas seis reuniões caírem, por
+acaso, numa janela "calma" do ciclo de juros (Selic parada ou mudando
+pouco), qualquer modelo — inclusive um sem sinal nenhum — erra pouco ali,
+porque o alvo mal se move; a comparação entre modelos no holdout reflete
+o regime que calhou de cair no fim da amostra, não a qualidade real do
+modelo. O walk-forward usa cada reunião uma única vez como teste,
+treinado só com o que já era conhecido até ali, e agrega o erro sobre
+dezenas de previsões espalhadas por vários regimes — nenhum trecho
+isolado de calmaria ou turbulência domina o resultado sozinho.
+
+# Implementação {#sec-implementacao}
+
+Esta seção documenta o pipeline real do projeto — os chunks abaixo têm
+`eval: false` (não são executados na renderização deste paper: dependem
+de rede e de chaves de API pagas) e mostram o código efetivamente usado,
+com comentários.
+
+## Coleta das atas
+
+```{python}
+#| echo: true
+#| eval: false
+from coleta.atas_copom import coletar_atas, extrair_secoes_a_b
+
+# Coleta a partir da 232ª reunião: baixa a lista de reuniões, o HTML de
+# cada ata, limpa com BeautifulSoup (remove script/style/sup e notas de
+# rodapé) e empacota como Document (langchain) com metadata
+# {"nro_reuniao": ..., "data": ...}. Usa requests.Session com retry e
+# backoff exponencial.
+atas = coletar_atas()
+
+# Recorta cada ata para as seções A e B, descartando a decisão já
+# anunciada (seção C em diante) — ver Seção 4.3.
+atas_recortadas = [
+    (ata.metadata["nro_reuniao"], extrair_secoes_a_b(ata.page_content))
+    for ata in atas
+]
+```
+
+## Pontuação por LLM (saída estruturada, sem parsing de texto)
+
+```{python}
+#| echo: true
+#| eval: false
+from pydantic import BaseModel, Field
+
+class TomAta(BaseModel):
+    """Nota de tom (hawkish/dovish) de uma ata do Copom."""
+
+    score: float = Field(
+        ...,
+        description=(
+            "Nota de tom da ata numa escala contínua de -3.0 a +3.0: "
+            "negativo = dovish, positivo = hawkish, zero = neutro."
+        ),
+    )
+    # Sem ge/le proposital: um score do LLM levemente fora do intervalo
+    # é aceito e depois clipado no loop, em vez de rejeitado na validação.
+```
+
+```{python}
+#| echo: true
+#| eval: false
+# As três chamadas usam o MESMO schema (TomAta) e o MESMO bloco de
+# instruções (INSTRUCOES_SISTEMA), para que a comparação entre modelos
+# isole a variável "modelo", não a variável "instrução".
+
+# Gemini (gemini-flash-lite-latest, temperature=0):
+modelo_gemini = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", temperature=0)
+resultado = modelo_gemini.with_structured_output(TomAta).invoke(
+    [("system", INSTRUCOES_SISTEMA), ("human", texto_secoes_a_b)]
+)
+
+# Claude (claude-haiku-4-5, temperature=0) — instruções como SystemMessage
+# com cache_control "ephemeral": ativa o prompt caching nativo da
+# Anthropic, já que esse bloco é idêntico em toda ata.
+mensagem_sistema = SystemMessage(content=[
+    {"type": "text", "text": INSTRUCOES_SISTEMA, "cache_control": {"type": "ephemeral"}}
+])
+modelo_claude = ChatAnthropic(model="claude-haiku-4-5", temperature=0)
+resultado = modelo_claude.with_structured_output(TomAta).invoke(
+    [mensagem_sistema, HumanMessage(content=texto_secoes_a_b)]
+)
+
+# OpenAI (gpt-4.1-mini, temperature=0) — tool calling nativo via
+# with_structured_output, sem cache_control explícito (a OpenAI cacheia
+# automaticamente do lado do servidor).
+modelo_openai = ChatOpenAI(model="gpt-4.1-mini", temperature=0)
+resultado = modelo_openai.with_structured_output(TomAta).invoke(
+    [("system", INSTRUCOES_SISTEMA), ("human", texto_secoes_a_b)]
+)
+```
+
+Cada loop de pontuação mantém um cache incremental em CSV
+(`scores_<provedor>_cache.csv`, colunas `nro_reuniao, data, score`): atas
+já pontuadas não geram nova chamada de API; erros são registrados sem
+derrubar as demais; o CSV só é regravado se houve score novo; e cada
+chamada usa `with_retry` (backoff exponencial com jitter, até 6
+tentativas) sobre os erros transitórios do respectivo provedor.
+
+## Calibração e robustez
+
+```{python}
+#| echo: true
+#| eval: false
+import statsmodels.api as sm
+
+# Uma regressão por modelo: variacao_selic ~ score.
+x = sm.add_constant(tabela_final[["score_gemini"]])
+resultado_ols = sm.OLS(tabela_final["variacao_selic"], x).fit()
+
+# Teste de Vuong entre dois modelos, na interseção das observações
+# não-nulas de ambos (ver Seção 3.5).
+estatistica_v, p_valor = teste_vuong(tabela_final, "score_gemini", "score_claude", ...)
+
+# Walk-forward: para cada reunião a partir da 21ª, treina em tudo que
+# veio antes e prevê só essa.
+for t in range(20, n):
+    alpha, beta = ajustar_ols(score[:t], y[:t])
+    previsao = alpha + beta * score[t]
+```
+
+# Resultados
+
+## Exercício 1 — In-sample
+
+```{python}
+#| output: asis
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path("..").resolve() / "src"))
+
+import pandas as pd
+from relatorio.tabelas_latex import formatar_tabela_booktabs, nota_dados_ausentes
+
+CAMINHO_DADOS = Path("..") / "data"
+
+try:
+    tabela_calibracao = pd.read_csv(CAMINHO_DADOS / "tabela_calibracao.csv")
+    tabela_calibracao["ic95_beta"] = tabela_calibracao.apply(
+        lambda r: f"[{r.ic95_beta_inferior:.2f}, {r.ic95_beta_superior:.2f}]", axis=1
+    )
+    print(formatar_tabela_booktabs(
+        tabela_calibracao,
+        colunas=["modelo", "n", "alpha_hat", "beta_hat", "erro_padrao_beta",
+                 "estatistica_t", "p_valor", "ic95_beta", "r2", "r2_ajustado"],
+        titulo="Calibração OLS por modelo (in-sample)",
+        nota=("Erros-padrão de OLS clássico (não robustos a heterocedasticidade "
+              "ou autocorrelação — ver Próximos Passos). IC = intervalo de confiança."),
+        rotulos_colunas={
+            "modelo": "Modelo", "n": "$n$", "alpha_hat": "$\\hat\\alpha$",
+            "beta_hat": "$\\hat\\beta$", "erro_padrao_beta": "EP($\\hat\\beta$)",
+            "estatistica_t": "$t$", "p_valor": "$p$-valor",
+            "ic95_beta": "IC 95\\% ($\\hat\\beta$)", "r2": "$R^2$", "r2_ajustado": "$R^2$ aj.",
+        },
+        formatos={
+            "alpha_hat": "{:.3f}", "beta_hat": "{:.3f}", "erro_padrao_beta": "{:.3f}",
+            "estatistica_t": "{:.2f}", "p_valor": "{:.4f}", "r2": "{:.3f}", "r2_ajustado": "{:.3f}",
+        },
+        column_format="lrrrrrrlrr",
+        label="tab:calibracao",
+    ))
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+## Comparações par a par (teste de Vuong)
+
+```{python}
+#| output: asis
+try:
+    tabela_vuong = pd.read_csv(CAMINHO_DADOS / "tabela_comparacoes_vuong.csv")
+    print(formatar_tabela_booktabs(
+        tabela_vuong,
+        colunas=["modelo_a", "modelo_b", "n", "estatistica_v", "p_valor"],
+        titulo="Comparações par a par entre modelos (teste de Vuong, 1989)",
+        nota=("$V>0$ favorece o modelo A; $|V|>1.96$ ($p<0.05$) indica diferença "
+              "estatisticamente robusta. Cada par recalibrado na interseção das "
+              "observações não-nulas dos dois scores."),
+        rotulos_colunas={
+            "modelo_a": "Modelo A", "modelo_b": "Modelo B", "n": "$n$",
+            "estatistica_v": "$V$", "p_valor": "$p$-valor",
+        },
+        formatos={"estatistica_v": "{:.2f}", "p_valor": "{:.4f}"},
+        column_format="llrrr",
+        label="tab:vuong",
+    ))
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+## Exercício 2 — Holdout (últimas 6 reuniões)
+
+```{python}
+#| output: asis
+try:
+    tabela_holdout = pd.read_csv(CAMINHO_DADOS / "robustez_holdout.csv")
+    print(formatar_tabela_booktabs(
+        tabela_holdout,
+        colunas=["modelo", "n_treino", "n_teste", "rmse_holdout", "mae_holdout"],
+        titulo="Robustez -- holdout (calibrado no treino, medido nas últimas 6 reuniões)",
+        nota="RMSE e MAE em p.p. de variação da Selic, calculados fora da amostra de calibração.",
+        rotulos_colunas={
+            "modelo": "Modelo", "n_treino": "$n$ treino", "n_teste": "$n$ teste",
+            "rmse_holdout": "RMSE", "mae_holdout": "MAE",
+        },
+        formatos={"rmse_holdout": "{:.3f}", "mae_holdout": "{:.3f}"},
+        column_format="lrrrr",
+        label="tab:holdout",
+    ))
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+## Exercício 3 — Walk-forward (janela expansiva)
+
+```{python}
+#| output: asis
+try:
+    tabela_wf = pd.read_csv(CAMINHO_DADOS / "robustez_walk_forward.csv")
+    print(formatar_tabela_booktabs(
+        tabela_wf,
+        colunas=["modelo", "n_pred", "rmse_walk_forward", "mae_walk_forward"],
+        titulo="Robustez -- walk-forward (janela expansiva, treino mínimo de 20 atas)",
+        nota="RMSE e MAE médios sobre todas as previsões fora da amostra (uma por reunião, $n_{\\text{pred}} \\approx 26$).",
+        rotulos_colunas={
+            "modelo": "Modelo", "n_pred": "$n$ previsões",
+            "rmse_walk_forward": "RMSE", "mae_walk_forward": "MAE",
+        },
+        formatos={"rmse_walk_forward": "{:.3f}", "mae_walk_forward": "{:.3f}"},
+        column_format="lrrr",
+        label="tab:walkforward",
+    ))
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+## Figuras
+
+```{python}
+#| output: asis
+from visualizacao.graficos import grafico_indice_tom_calibrado
+
+try:
+    tabela_final = pd.read_csv(CAMINHO_DADOS / "tabela_final.csv")
+    tabela_calibracao = pd.read_csv(CAMINHO_DADOS / "tabela_calibracao.csv")
+    grafico1 = grafico_indice_tom_calibrado(tabela_final, tabela_calibracao)
+    Path("figuras").mkdir(exist_ok=True)
+    grafico1.save("figuras/indice_tom_calibrado.png", dpi=200, verbose=False)
+    print("![Índice de Tom calibrado (p.p. de variação da Selic), por LLM.]"
+          "(figuras/indice_tom_calibrado.png){#fig-indice-tom width=90%}")
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+```{python}
+#| output: asis
+from visualizacao.graficos import grafico_zscore_tom
+
+try:
+    tabela_final = pd.read_csv(CAMINHO_DADOS / "tabela_final.csv")
+    grafico2 = grafico_zscore_tom(tabela_final)
+    grafico2.save("figuras/zscore_tom.png", dpi=200, verbose=False)
+    print("![Surpresa de comunicação (z-score do tom), por LLM.]"
+          "(figuras/zscore_tom.png){#fig-zscore width=90%}")
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+```{python}
+#| output: asis
+from visualizacao.graficos import grafico_comparativo_selic
+
+try:
+    tabela_final = pd.read_csv(CAMINHO_DADOS / "tabela_final.csv")
+    tabela_calibracao = pd.read_csv(CAMINHO_DADOS / "tabela_calibracao.csv")
+    grafico3 = grafico_comparativo_selic(tabela_final, tabela_calibracao)
+    grafico3.save("figuras/comparativo_selic.png", dpi=200, verbose=False)
+    print("![Tom calibrado vs. variação real da Selic — comparação direta "
+          "entre o que o índice de cada LLM implicaria e a decisão de fato.]"
+          "(figuras/comparativo_selic.png){#fig-comparativo width=90%}")
+except FileNotFoundError as erro:
+    print(nota_dados_ausentes(erro.filename))
+```
+
+# Próximos Passos {#sec-proximos-passos}
+
+- **Adicionar Claude e OpenAI à comparação**: a coleta e a pontuação já
+  rodaram de ponta a ponta contra dados reais para o Gemini e para o
+  baseline léxico (232ª à 280ª reunião); Claude ainda não tem
+  `ANTHROPIC_API_KEY` configurada e a conta da OpenAI está sem crédito
+  (`insufficient_quota`). Assim que os dois estiverem disponíveis, basta
+  rodar `scripts/pontuar_atas_claude.py` e
+  `scripts/pontuar_atas_openai.py` e refazer a montagem da tabela final
+  em diante — o pipeline já foi desenhado para incorporar
+  automaticamente qualquer subconjunto de provedores disponível.
+- **Erros-padrão robustos**: a calibração atual usa OLS clássico; avaliar
+  erros-padrão HAC (Newey-West), já que a série é temporal e pode ter
+  autocorrelação residual.
+- **Poder estatístico**: com $n=47$-$49$ (uma observação por reunião do
+  Copom), os testes de significância — inclusive o de Vuong — ainda têm
+  poder limitado; reavaliar a robustez das conclusões à medida que mais
+  atas entrarem na amostra.
+- **Revisão do léxico**: o baseline não capturou relação nenhuma com a
+  variação da Selic ($R^2 \approx 0$, Seção~\ref{sec-metodologia}) — o
+  esperado de um piso de comparação, mas vale checar cobertura (quantas
+  atas ficam com $n_h + n_d = 0$) e ajustar termos numa amostra maior.
+- **Logo oficial da Análise Macro**: a capa deste documento usa um
+  placeholder (Seção de título) — substituir por
+  `figuras/logo_analise_macro_placeholder.png` com o arquivo real.
+- **Referências bibliográficas**: os dados de @apelgrimaldi2012 e
+  @hansenmcmahon2016 foram reconstruídos de memória, sem acesso à
+  internet para conferir volume/páginas exatos — revisar antes de
+  submissão.
+
+# Conclusão
+
+Este documento entrega o desenho metodológico completo de um Índice de
+Tom para as atas do Copom — quatro formas independentes de pontuação
+sobre o mesmo texto, calibradas contra a variação da Selic e comparadas
+por um teste formal de robustez estatística (Vuong), com a comparação de
+modelos validada em três horizontes de robustez (in-sample, holdout e
+walk-forward) — e a infraestrutura de código que o executa de ponta a
+ponta, do download da ata bruta à figura final. Com o Gemini e o
+baseline léxico já calibrados contra dados reais (47 reuniões, de 2020 a
+2026), o resultado central do projeto já está de pé: o tom lido pelo
+Gemini explica de forma estatisticamente significativa e robusta
+(Vuong, $p=0.0013$) a variação da Selic, o que um dicionário simples não
+faz. O que falta é completar a comparação com Claude e OpenAI assim que
+suas chaves/créditos estiverem disponíveis — a
+Seção~\ref{sec-proximos-passos} lista exatamente esse caminho.
+
+# Referências {.unnumbered}
+
+::: {#refs}
+:::

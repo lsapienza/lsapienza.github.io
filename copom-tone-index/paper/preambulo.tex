@@ -1,0 +1,11 @@
+% Pacotes extras para tabelas estilo journal (booktabs + nota de rodapé
+% via threeparttable) e ambiente de figura fixo ([ht] -> mais previsível
+% com float).
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{float}
+
+% A capa é montada à mão logo no início do corpo do documento (ambiente
+% titlepage, com a logo) -- neutraliza o \maketitle automático do pandoc
+% para não imprimir um segundo título antes dela.
+\renewcommand{\maketitle}{}

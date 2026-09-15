@@ -9,13 +9,13 @@ toc: false
 ::: {.home-left}
 ![](assets/img/profile.jpg){.profile-photo}
 
-## Your Name
+## Leonardo Sapienza
 
 Placeholder bio — replace with a real introduction: who you are, what you
 do, and what visitors will find on this site.
 
-- [LinkedIn](https://www.linkedin.com/in/seu-usuario)
-- [Email](mailto:seu-email@exemplo.com)
+- [LinkedIn](https://www.linkedin.com/in/leonardo-sapienza)
+- [Email](mailto:ldsapienza@uol.com.br)
 - [About](about.qmd)
 :::
 
