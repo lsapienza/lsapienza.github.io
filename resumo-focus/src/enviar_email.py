@@ -1,27 +1,37 @@
-"""Envia o resumo executivo do Boletim Focus por e-mail (Gmail SMTP).
+"""Envia o resumo executivo do Boletim Focus por e-mail via API do Resend.
 
 Este módulo é puramente mecânico: localiza o HTML mais recente gerado em
 output/focus/ e o envia como corpo do e-mail. Não interpreta nem reescreve
 o conteúdo (ver CLAUDE.md — princípio de separação entre determinístico e
 julgamento).
 
+Usamos a API do Resend (REST simples via `requests`) em vez de SMTP do
+Gmail: contas Gmail nem sempre disponibilizam "senha de app" (depende de
+política da conta/organização — 2FA obrigatória, e mesmo assim algumas
+contas simplesmente não têm a opção), então uma API baseada em chave é mais
+previsível para automação.
+
 Credenciais NUNCA são hardcoded: vêm sempre de variáveis de ambiente (no
 CI, de GitHub Secrets):
-    GMAIL_USUARIO               endereço Gmail usado para autenticar e enviar
-    GMAIL_SENHA_APP              senha de app do Gmail (não é a senha da conta)
-    FOCUS_EMAIL_DESTINATARIOS    destinatários, separados por vírgula
+    RESEND_API_KEY               chave de API do Resend (resend.com)
+    FOCUS_EMAIL_REMETENTE         remetente (opcional; ver REMETENTE_PADRAO)
+    FOCUS_EMAIL_DESTINATARIOS     destinatários, separados por vírgula
 """
 from __future__ import annotations
 
 import argparse
 import logging
 import os
-import smtplib
-from email.message import EmailMessage
 from pathlib import Path
 
-SERVIDOR_SMTP_GMAIL = "smtp.gmail.com"
-PORTA_SMTP_SSL = 465
+import requests
+
+RESEND_API_URL = "https://api.resend.com/emails"
+# onboarding@resend.dev é o domínio de testes do Resend: funciona sem
+# verificar domínio próprio, mas só entrega para o e-mail da conta Resend
+# cadastrada. Para enviar a destinatários variados no futuro, troque via
+# FOCUS_EMAIL_REMETENTE por um endereço de um domínio verificado.
+REMETENTE_PADRAO = "Boletim Focus <onboarding@resend.dev>"
 PASTA_HTML_PADRAO = Path("output/focus")
 
 logger = logging.getLogger(__name__)
@@ -60,32 +70,33 @@ def destinatarios_do_ambiente(variavel: str = "FOCUS_EMAIL_DESTINATARIOS") -> li
     return [endereco.strip() for endereco in bruto.split(",") if endereco.strip()]
 
 
-def montar_mensagem(
+def montar_payload(
     html: str, remetente: str, destinatarios: list[str], assunto: str
-) -> EmailMessage:
-    """Monta a mensagem MIME com o HTML como corpo (e um texto simples de fallback)."""
-    mensagem = EmailMessage()
-    mensagem["Subject"] = assunto
-    mensagem["From"] = remetente
-    mensagem["To"] = ", ".join(destinatarios)
-    mensagem.set_content(
-        "Este e-mail contém HTML. Ative a visualização em HTML para lê-lo."
+) -> dict:
+    """Monta o corpo JSON esperado pela API do Resend."""
+    return {
+        "from": remetente,
+        "to": destinatarios,
+        "subject": assunto,
+        "html": html,
+    }
+
+
+def enviar_via_resend(payload: dict, api_key: str) -> None:
+    """Envia o e-mail através da API REST do Resend."""
+    resposta = requests.post(
+        RESEND_API_URL,
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        timeout=30,
     )
-    mensagem.add_alternative(html, subtype="html")
-    return mensagem
-
-
-def enviar_mensagem(
-    mensagem: EmailMessage,
-    usuario: str,
-    senha: str,
-    servidor: str = SERVIDOR_SMTP_GMAIL,
-    porta: int = PORTA_SMTP_SSL,
-) -> None:
-    """Autentica e envia a mensagem via SMTP com SSL."""
-    with smtplib.SMTP_SSL(servidor, porta) as smtp:
-        smtp.login(usuario, senha)
-        smtp.send_message(mensagem)
+    if not resposta.ok:
+        raise RuntimeError(
+            f"Resend recusou o envio (HTTP {resposta.status_code}): {resposta.text}"
+        )
 
 
 def enviar_resumo_mais_recente(pasta_html: Path = PASTA_HTML_PADRAO) -> Path:
@@ -93,17 +104,17 @@ def enviar_resumo_mais_recente(pasta_html: Path = PASTA_HTML_PADRAO) -> Path:
     caminho_html = encontrar_html_mais_recente(pasta_html)
     html = caminho_html.read_text(encoding="utf-8")
 
-    usuario = ler_variavel_obrigatoria("GMAIL_USUARIO")
-    senha = ler_variavel_obrigatoria("GMAIL_SENHA_APP")
+    api_key = ler_variavel_obrigatoria("RESEND_API_KEY")
+    remetente = os.environ.get("FOCUS_EMAIL_REMETENTE", REMETENTE_PADRAO)
     destinatarios = destinatarios_do_ambiente()
 
-    mensagem = montar_mensagem(
+    payload = montar_payload(
         html=html,
-        remetente=usuario,
+        remetente=remetente,
         destinatarios=destinatarios,
         assunto=assunto_do_arquivo(caminho_html),
     )
-    enviar_mensagem(mensagem, usuario=usuario, senha=senha)
+    enviar_via_resend(payload, api_key=api_key)
     return caminho_html
 
 

@@ -7,7 +7,7 @@
 # Actions exige em .github/workflows/ na raiz) ficam fora dessa subpasta.
 #
 # Este workflow só faz o que é mecânico: pegar o HTML já pronto (redigido
-# pelo agente no Estágio 2) e enviá-lo por e-mail via SMTP. Nenhuma
+# pelo agente no Estágio 2) e enviá-lo por e-mail via API do Resend. Nenhuma
 # interpretação acontece aqui (ver CLAUDE.md — princípio de separação entre
 # determinístico e julgamento).
 #
@@ -29,11 +29,13 @@
 # `on: workflow_run` apontando para o nome do workflow do Estágio 2.
 #
 # Secrets necessários (Settings -> Secrets and variables -> Actions):
-#   GMAIL_USUARIO               conta Gmail usada para autenticar e enviar
-#   GMAIL_SENHA_APP              senha de app do Gmail (não é a senha normal;
-#                                requer verificação em 2 etapas ativada na
-#                                conta para gerar uma senha de app)
+#   RESEND_API_KEY               chave de API do Resend (resend.com)
 #   FOCUS_EMAIL_DESTINATARIOS    destinatários, separados por vírgula
+#
+# Variável opcional (não é secret, mas pode virar uma se preferir):
+#   FOCUS_EMAIL_REMETENTE        remetente customizado; se omitido, usa o
+#                                domínio de testes do Resend (ver
+#                                REMETENTE_PADRAO em src/enviar_email.py)
 # =============================================================================
 
 name: "Focus (3/3) - Envio do e-mail"
@@ -76,7 +78,6 @@ jobs:
 
       - name: Enviar o resumo mais recente por e-mail
         env:
-          GMAIL_USUARIO: ${{ secrets.GMAIL_USUARIO }}
-          GMAIL_SENHA_APP: ${{ secrets.GMAIL_SENHA_APP }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           FOCUS_EMAIL_DESTINATARIOS: ${{ secrets.FOCUS_EMAIL_DESTINATARIOS }}
         run: python src/enviar_email.py

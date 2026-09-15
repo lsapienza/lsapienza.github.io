@@ -103,6 +103,6 @@ Notas sobre a estrutura:
 
 - Formato de saída da extração (texto corrido vs. estrutura por
   indicador/tabela) — a definir conforme a complexidade real do PDF do Focus.
-- Serviço de envio de e-mail (SMTP direto, SendGrid, etc.).
+- ~~Serviço de envio de e-mail~~ — decidido: API do Resend (ver `src/enviar_email.py`). SMTP do Gmail foi tentado primeiro, mas nem toda conta Gmail disponibiliza "senha de app" (depende de política de conta/organização), então uma API baseada em chave é mais previsível para automação.
 - Onde/como o agente Claude é invocado dentro do GitHub Actions (Claude Code
   Action, API direta, etc.).
