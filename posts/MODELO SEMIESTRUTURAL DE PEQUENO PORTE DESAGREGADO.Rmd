@@ -1,0 +1,137 @@
+---
+title: "Untitled"
+output: html_document
+date: "2026-09-08"
+---
+
+```{r}
+# ==============================================================================
+# MODELO SEMIESTRUTURAL DE PEQUENO PORTE DESAGREGADO - BANCO CENTRAL DO BRASIL
+# REPLICAÇÃO VISUAL DIRETA NO RSTUDIO
+# ==============================================================================
+
+# 1. PARAMETRIZAÇÃO DAS EQUAÇÕES (Tabelas 1 e 2 do Relatório de Inflação)
+params <- list(
+  # Curva de Phillips - Bens Industriais (B)
+  alphaB1 = 0.43,   # Inércia setorial
+  alphaB4 = 0.015,  # Variação do câmbio (defasagem t-1)
+  alphaB6 = 0.079,  # Hiato do produto
+  
+  # Curva de Phillips - Alimentação no Domicílio (A)
+  alphaA1 = 0.53,   # Inércia setorial
+  alphaA3 = 0.023,  # Variação do câmbio contemporâneo
+  alphaA4 = 0.073,  # Hiato do produto
+  
+  # Curva de Phillips - Serviços (S)
+  alphaS1 = 0.37,   # Inércia do IPCA cheio
+  alphaS2 = 0.30,   # Inércia setorial
+  alphaS3 = 0.13,   # Hiato do produto
+  
+  # Pesos dos Grupos na Inflação de Preços Livres (IPCA Simplificado)
+  wB = 0.25, wA = 0.25, wS = 0.50,
+  
+  # Curva IS (Dinâmica do Hiato do Produto)
+  beta1   = 0.86,   # Autorregressivo do hiato
+  beta2   = 0.44,   # Elasticidade ao juro real
+  
+  # Regra de Taylor (Função de Reação da Selic)
+  theta1  = 1.48,   # Suavização (t-1)
+  theta2  = -0.58,  # Suavização (t-2)
+  theta3  = 2.07,   # Resposta ao desvio da meta
+  
+  # Expectativas de Inflação e Câmbio (UIP)
+  phi1    = 0.74,   # Inércia das expectativas
+  phi2    = 0.12,   # Expectativa consistente com o modelo (forward-looking)
+  delta   = 1.95    # Coeficiente de transmissão cambial via UIP
+)
+
+horizonte <- 16 # Simulação para 16 trimestres (4 anos)
+
+# 2. FUNÇÃO CORE DE SIMULAÇÃO DINÂMICA DO SISTEMA
+simular_modelo <- function(com_choque = FALSE) {
+  
+  # Inicializa a matriz de dados
+  mat <- matrix(0, nrow = horizonte, ncol = 9)
+  colnames(mat) <- c("pi_B", "pi_A", "pi_S", "pi_IPCA", "pi_exp", "Delta_e", "h", "i_Selic", "r_hat")
+  
+  # Definição das condições iniciais e âncoras estáveis (t = 1 e t = 2)
+  mat[1:2, "pi_exp"]  <- 4.2
+  mat[1:2, "i_Selic"] <- 14.0
+  
+  # Se quiser testar uma economia partindo com inflações setoriais desalinhadas:
+  mat[1:2, "pi_B"]    <- 5.0   # Bens Industriais iniciais
+  mat[1:2, "pi_A"]    <- 0.0   # Alimentação inicial
+  mat[1:2, "pi_S"]    <- 0.0   # Serviços iniciais
+  mat[1:2, "pi_IPCA"] <- 0.0   # IPCA cheio inicial
+  mat[1:2, "h"]       <- 0.0   # Hiato do produto inicial (0 = economia no potencial)
+  # ------------------------------------------------------------------
+  
+  # Loop trimestral para resolver o sistema simultâneo de equações
+  for (t in 3:horizonte) {
+    
+    # --- CANAL DE POLÍTICA MONETÁRIA (Taxa Selic) ---
+    if (t <= 6) {
+      # Período de choque fixado exogenamente pelo tomador de política
+      mat[t, "i_Selic"] <- if (com_choque) 12.0 else 10.0
+    } else {
+      # Pós-choque: O Banco Central retoma a Regra de Taylor endógena
+      desvio_expectativa <- mat[t-1, "pi_exp"] - 3.0
+      mat[t, "i_Selic"] <- (params$theta1 * mat[t-1, "i_Selic"] + 
+                              params$theta2 * mat[t-2, "i_Selic"] + 
+                              params$theta3 * desvio_expectativa)
+    }
+    
+    # --- CANAL CAMBIAL (Paridade Descoberta de Juros - UIP) ---
+    mat[t, "Delta_e"] <- 0.25 - params$delta * (mat[t-1, "i_Selic"] - 5.0)
+    
+    # --- CANAL DE DEMANDA AGREGADA (Curva IS) ---
+    mat[t, "r_hat"] <- mat[t, "i_Selic"] - mat[t, "pi_exp"] # Juro real ex-ante
+    mat[t, "h"] <- params$beta1 * mat[t-1, "h"] - params$beta2 * mat[t-1, "r_hat"]
+    
+    # --- CANAL DE CUSTOS E PREÇOS (Curvas de Phillips Setoriais) ---
+    mat[t, "pi_B"] <- params$alphaB1 * mat[t-1, "pi_B"] + params$alphaB4 * mat[t-1, "Delta_e"] + params$alphaB6 * mat[t, "h"]
+    mat[t, "pi_A"] <- params$alphaA1 * mat[t-1, "pi_A"] + params$alphaA3 * mat[t, "Delta_e"] + params$alphaA4 * mat[t, "h"]
+    mat[t, "pi_S"] <- params$alphaS1 * mat[t-1, "pi_IPCA"] + params$alphaS2 * mat[t-1, "pi_S"] + params$alphaS3 * mat[t, "h"]
+    
+    # Identidade de Agregação da Inflação de Preços Livres (IPCA)
+    mat[t, "pi_IPCA"] <- params$wB * mat[t, "pi_B"] + params$wA * mat[t, "pi_A"] + params$wS * mat[t, "pi_S"]
+    
+    # --- EXPECTATIVAS DE INFLAÇÃO ---
+    mat[t, "pi_exp"] <- params$phi1 * mat[t-1, "pi_exp"] + params$phi2 * mat[t, "pi_IPCA"] + (1 - params$phi1 - params$phi2) * 3.0
+  }
+  
+  return(mat)
+}
+
+# 3. COMPUTAÇÃO DA RESPOSTA AO IMPULSO (IRF)
+cenario_base   <- simular_modelo(com_choque = FALSE)
+cenario_choque <- simular_modelo(com_choque = TRUE)
+irf            <- cenario_choque - cenario_base
+
+# 4. PLOTAGEM DIRETA NO RSTUDIO (SAÍDA DE TELA ATIVADA)
+# Configura o layout lado a lado diretamente na janela do programa
+par(mfrow = c(1, 2), mar = c(4, 4, 3, 2))
+
+# --- GRÁFICO 1: Trajetória da Selic e do Hiato do Produto
+plot(irf[, "i_Selic"], type = "l", col = "#002060", lwd = 2.5, 
+     ylim = c(min(irf[, "h"]) - 0.1, max(irf[, "i_Selic"]) + 0.2),
+     xlab = "Trimestres Pós-Choque", ylab = "Variação Líquida (p.p.)", 
+     main = "Transmissão: Juros vs Atividade")
+lines(irf[, "h"], col = "#C00000", lwd = 2.5, lty = 2) 
+abline(h = 0, col = "gray60", lty = 3) 
+legend("topright", legend = c("Taxa Selic", "Hiato do Produto (IS)"), 
+       col = c("#002060", "#C00000"), lty = 1:2, lwd = 2.5, bty = "n")
+
+# --- GRÁFICO 2: Resposta das Inflações Setoriais Desagregadas
+plot(irf[, "pi_IPCA"], type = "l", col = "#000000", lwd = 3, lty = 3,
+     ylim = c(min(irf[, 1:3]) - 0.05, 0.05), 
+     xlab = "Trimestres Pós-Choque", ylab = "Impacto Acumulado (p.p.)", 
+     main = "IRF das Inflações Setoriais")
+lines(irf[, "pi_B"], col = "#FF8C00", lwd = 2.5)       
+lines(irf[, "pi_A"], col = "#228B22", lwd = 2.5)       
+lines(irf[, "pi_S"], col = "#800080", lwd = 2.5)       
+abline(h = 0, col = "gray60", lty = 3) 
+legend("bottomleft", legend = c("Bens Industriais", "Alimentação", "Serviços", "IPCA Livre"), 
+       col = c("#FF8C00", "#228B22", "#800080", "#000000"), lty = c(1, 1, 1, 3), lwd = 2.5, bty = "n")
+
+```
