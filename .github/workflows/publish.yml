@@ -1,3 +1,4 @@
+yaml
 name: Publish site
 
 on:
@@ -23,6 +24,22 @@ jobs:
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install R packages
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::knitr
+            any::rmarkdown
+            any::downlit
+            any::xml2
+            # adicione aqui os pacotes que o seu post usa com library(...)
+            # ex.: any::ggplot2, any::dplyr
+
       # build.ps1 já renderiza os dois profiles (en/pt), escreve o
       # dispatcher e os redirects de legacy URL, e copia os PDFs de CV —
       # reaproveitado tal como está, sem reescrever a lógica em bash.
@@ -41,8 +58,3 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
