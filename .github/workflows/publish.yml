@@ -36,13 +36,7 @@ jobs:
             any::rmarkdown
             any::downlit
             any::xml2
-            # adicione aqui os pacotes que o seu post usa com library(...)
-            # ex.: any::ggplot2, any::dplyr
 
-      # build.ps1 já renderiza os dois profiles (en/pt), escreve o
-      # dispatcher e os redirects de legacy URL, e copia os PDFs de CV —
-      # reaproveitado tal como está, sem reescrever a lógica em bash.
-      # Runners Ubuntu do GitHub Actions já vêm com PowerShell (pwsh).
       - name: Build site (build.ps1)
         shell: pwsh
         run: ./build.ps1
@@ -57,3 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
