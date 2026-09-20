@@ -1,2 +1,7 @@
 modelo_a,modelo_b,n,estatistica_v,p_valor,conclusao
-Gemini,Léxico (baseline),47,3.221314444740088,0.0012760406155705173,"Gemini explica variacao_selic significativamente melhor (Vuong, p=0.0013 < 0.05)"
+Gemini,Claude,47,-0.46386919344211575,0.6427414655332262,"Diferença entre Gemini e Claude NÃO é estatisticamente robusta (Vuong, p=0.6427)"
+Gemini,OpenAI,47,1.0194557686359698,0.30798664167768397,"Diferença entre Gemini e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.3080)"
+Gemini,Léxico (baseline),47,3.2213144447400897,0.0012760406155705173,"Gemini explica variacao_selic significativamente melhor (Vuong, p=0.0013 < 0.05)"
+Claude,OpenAI,49,1.2099879227855563,0.22628352719427935,"Diferença entre Claude e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.2263)"
+Claude,Léxico (baseline),49,3.9434838149577884,8.030641352996248e-05,"Claude explica variacao_selic significativamente melhor (Vuong, p=0.0001 < 0.05)"
+OpenAI,Léxico (baseline),49,2.7734967062746403,0.005545740177107961,"OpenAI explica variacao_selic significativamente melhor (Vuong, p=0.0055 < 0.05)"
