@@ -1,7 +1,7 @@
 modelo_a,modelo_b,n,estatistica_v,p_valor,conclusao
-Gemini,Claude,47,-0.46386919344211575,0.6427414655332262,"Diferença entre Gemini e Claude NÃO é estatisticamente robusta (Vuong, p=0.6427)"
-Gemini,OpenAI,47,1.0194557686359698,0.30798664167768397,"Diferença entre Gemini e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.3080)"
-Gemini,Léxico (baseline),47,3.2213144447400897,0.0012760406155705173,"Gemini explica variacao_selic significativamente melhor (Vuong, p=0.0013 < 0.05)"
-Claude,OpenAI,49,1.2099879227855563,0.22628352719427935,"Diferença entre Claude e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.2263)"
-Claude,Léxico (baseline),49,3.9434838149577884,8.030641352996248e-05,"Claude explica variacao_selic significativamente melhor (Vuong, p=0.0001 < 0.05)"
-OpenAI,Léxico (baseline),49,2.7734967062746403,0.005545740177107961,"OpenAI explica variacao_selic significativamente melhor (Vuong, p=0.0055 < 0.05)"
+Gemini,Claude,50,-0.7127943862764312,0.4759729998918334,"Diferença entre Gemini e Claude NÃO é estatisticamente robusta (Vuong, p=0.4760)"
+Gemini,OpenAI,50,1.0478146761689717,0.29472399939974414,"Diferença entre Gemini e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.2947)"
+Gemini,Léxico (baseline),50,3.367081286511691,0.0007596829245359871,"Gemini explica variacao_selic significativamente melhor (Vuong, p=0.0008 < 0.05)"
+Claude,OpenAI,50,1.4471476201879425,0.147855583177821,"Diferença entre Claude e OpenAI NÃO é estatisticamente robusta (Vuong, p=0.1479)"
+Claude,Léxico (baseline),50,3.979187774173444,6.915110950012071e-05,"Claude explica variacao_selic significativamente melhor (Vuong, p=0.0001 < 0.05)"
+OpenAI,Léxico (baseline),50,2.7306305804770767,0.0063213285211498604,"OpenAI explica variacao_selic significativamente melhor (Vuong, p=0.0063 < 0.05)"

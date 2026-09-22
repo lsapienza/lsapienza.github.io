@@ -62,16 +62,16 @@ formalizada pelo teste de Vuong para modelos não aninhados. Este
 documento é gerado inteiramente por código executável — tabelas e
 figuras vêm de chunks que leem os dados processados pelo pipeline do
 projeto, nunca de números digitados à mão. Nesta versão, o pipeline já
-rodou contra dados reais para os quatro modelos (232ª à 280ª reunião,
-$n=47$-$49$ conforme a cobertura de cada provedor). Os três LLMs
+rodou contra dados reais para os quatro modelos (232ª à 281ª reunião,
+$n=50$). Os três LLMs
 explicam a variação da Selic de forma estatisticamente significativa —
-Gemini ($\hat\beta=0.32$, $p<0.001$, $R^2=0.30$), Claude
-($\hat\beta=0.47$, $p<0.001$, $R^2=0.34$) e OpenAI ($\hat\beta=0.49$,
-$p<0.001$, $R^2=0.26$) —, o que o baseline léxico não faz ($p=0.97$,
+Gemini ($\hat\beta=0.32$, $p<0.001$, $R^2=0.31$), Claude
+($\hat\beta=0.47$, $p<0.001$, $R^2=0.34$) e OpenAI ($\hat\beta=0.48$,
+$p<0.001$, $R^2=0.25$) —, o que o baseline léxico não faz ($p=0.95$,
 $R^2\approx 0$). O teste de Vuong confirma essa diferença como robusta
-para os três LLMs contra o léxico ($p=0.0013$, $p<0.001$ e $p=0.0055$,
+para os três LLMs contra o léxico ($p=0.0008$, $p<0.001$ e $p=0.0063$,
 respectivamente), mas não encontra diferença robusta entre os três LLMs
-entre si (todos os pares com $p>0.2$).
+entre si (todos os pares com $p>0.1$).
 
 # Introdução
 
@@ -510,7 +510,7 @@ except FileNotFoundError as erro:
 - **Erros-padrão robustos**: a calibração atual usa OLS clássico; avaliar
   erros-padrão HAC (Newey-West), já que a série é temporal e pode ter
   autocorrelação residual.
-- **Poder estatístico**: com $n=47$-$49$ (uma observação por reunião do
+- **Poder estatístico**: com $n=50$ (uma observação por reunião do
   Copom), os testes de significância — inclusive o de Vuong — ainda têm
   poder limitado; reavaliar a robustez das conclusões à medida que mais
   atas entrarem na amostra.
@@ -535,20 +535,21 @@ por um teste formal de robustez estatística (Vuong), com a comparação de
 modelos validada em três horizontes de robustez (in-sample, holdout e
 walk-forward) — e a infraestrutura de código que o executa de ponta a
 ponta, do download da ata bruta à figura final. Com os quatro modelos já
-calibrados contra dados reais (49 reuniões, de 2020 a 2026), o resultado
+calibrados contra dados reais (50 reuniões, de 2020 a 2026, incluindo a
+281ª reunião, com ata divulgada em 22/09/2026), o resultado
 central do projeto está de pé: os três LLMs — Gemini, Claude e OpenAI —
 explicam de forma estatisticamente significativa e robusta (Vuong,
 $p<0.01$ em todos os pares contra o léxico) a variação da Selic, o que
 um dicionário simples não faz ($R^2\approx0$). Entre si, os três LLMs não
-se distinguem de forma estatisticamente robusta (Vuong, $p>0.2$ em todos
+se distinguem de forma estatisticamente robusta (Vuong, $p>0.1$ em todos
 os pares) — o ganho está em usar um LLM de propósito geral em vez de um
 léxico fixo, não na escolha de qual LLM. O exercício de walk-forward
 reforça essa leitura de forma mais confiável que o holdout isolado (ver
 Seção~\ref{sec-metodologia} sobre o viés de "janela calma"): agregando
-erro sobre ~26-29 previsões espalhadas por vários regimes de juros, os
+erro sobre 30 previsões espalhadas por vários regimes de juros, os
 três LLMs têm RMSE menor que o léxico, com o Claude à frente (RMSE
-$=0.491$), seguido por OpenAI ($0.525$) e Gemini ($0.564$), contra
-$0.590$ do léxico — uma ordem que se inverte no holdout de seis
+$=0.484$), seguido por OpenAI ($0.526$) e Gemini ($0.544$), contra
+$0.587$ do léxico — uma ordem que se inverte no holdout de seis
 reuniões, exatamente o sintoma do viés que motivou incluir os três
 exercícios de robustez em primeiro lugar. Os itens que seguem em aberto
 estão listados na Seção~\ref{sec-proximos-passos}.
