@@ -29,32 +29,40 @@ jobs:
           use-public-rspm: true
 
       - name: Install R packages
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages: |
-            any::knitr
-            any::rmarkdown
-            any::downlit
-            any::xml2
-            any::kableExtra
-            any::fredr
-            any::rbcb
-            any::sidrar
-            any::dplyr
-            any::RcppRoll
-            any::tsibble
-            any::lubridate
-            any::purrr
-            any::tidyr
-            any::imputeTS
-            any::forecast
-            any::mFilter
-            any::bimets
-            any::glue
-            any::jsonlite
-            any::seasonal
-            any::stringr
-            any::ggplot2
+        run: |
+          Rscript -e "install.packages(c(
+            'knitr', 'rmarkdown', 'downlit', 'xml2', 'kableExtra', 
+            'fredr', 'rbcb', 'sidrar', 'dplyr', 'RcppRoll', 
+            'tsibble', 'lubridate', 'purrr', 'tidyr', 'imputeTS', 
+            'forecast', 'mFilter', 'bimets', 'glue', 'jsonlite', 
+            'seasonal', 'stringr', 'ggplot2'
+          ))"
+        #uses: r-lib/actions/setup-r-dependencies@v2
+        #with:
+         # packages: |
+          #  any::knitr
+           # any::rmarkdown
+           # any::downlit
+            # any::xml2
+            # any::kableExtra
+            # any::fredr
+            # any::rbcb
+            # any::sidrar
+            # any::dplyr
+            # any::RcppRoll
+            # any::tsibble
+            # any::lubridate
+            # any::purrr
+            # any::tidyr
+            # any::imputeTS
+            # any::forecast
+            # any::mFilter
+            # any::bimets
+            # any::glue
+            # any::jsonlite
+            # any::seasonal
+            # any::stringr
+            # any::ggplot2
             
             
                                
