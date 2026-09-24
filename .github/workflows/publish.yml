@@ -40,6 +40,23 @@ jobs:
             any::fredr
             any::rbcb
             any::sidrar
+            any::dplyr
+            any::RcppRoll
+            any::tsibble
+            any::lubridate
+            any::purrr
+            any::tidyr
+            any::imputeTS
+            any::forecast
+            any::mFilter
+            any::bimets
+            any::glue
+            any::jsonlite
+            any::seasonal
+            any::stringr
+            any::ggplot2
+            
+            
                                
 
 
