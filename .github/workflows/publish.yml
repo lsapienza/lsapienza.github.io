@@ -37,6 +37,8 @@ jobs:
             any::downlit
             any::xml2
             any::kableExtra
+            any::fredr
+
 
       - name: Build site (build.ps1)
         shell: pwsh
