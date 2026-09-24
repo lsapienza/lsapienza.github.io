@@ -1,0 +1,380 @@
+---
+title: "Modelo BCB"
+author: "Leonardo Sapienza"
+format: 
+  html:
+    code-fold: true
+    code-summary: "Mostrar código"
+    include-in-header:
+      - text: |
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+    toc: true
+    toc-location: right
+    toc-title: "Neste documento"  # Opcional: altera o título do menu
+editor: visual
+---
+
+# Como preparar os dados para um modelo preditivo?
+
+Modelos de previsão macroeconômica podem facilmente alcançar um número elevado de variáveis. Mesmo modelos simplificados, como o Modelo de Pequeno Porte do Banco Central, usam cerca de 30 variáveis. Isso impõe um grande desafio ao nosso dia a dia: como fazer a gestão destes dados para uso em modelos, desde a coleta até o tratamento?
+
+Neste artigo mostramos como é possível automatizar, usando linguagem de programação, todo o processo de preparação de dados para uso em modelos preditivos macroeconômicos. Tomando como exemplo as variáveis do MPP, mostramos como coletar e tratar os dados de diferentes fontes e, no fim, montamos uma tabela que serve de base para a estimação do modelo.
+
+## Etapa 1: identificar as variáveis
+
+Partindo d eum modelo macroeconômico a ser estimado, o primeiro passo é identificar quais são as variáveis necessárias para o mesmo. No caso do MPP, as variáveis estão descritas no [Atualização dos modelos semiestruturais de pequeno porte](https://www.bcb.gov.br/content/ri/relatorioinflacao/202406/ri202406b12p.pdf) publicado pelo Banco Central.
+
+Para facilitar a gestão de informações, o usuário pode montar uma tabela resumo destas variáveis, contendo as principais informações, como no exemplo abaixo:
+
+```{r}
+#| label: tbl-dados-manuais
+#| tbl-cap: "Tabela de Resumo da Variáveis"
+#| echo: false
+#| message: false
+#| warning: false
+
+library(knitr)
+library(kableExtra)
+library(fredr)
+library(rbcb)
+library(sidrar)
+library(dplyr)
+library(RcppRoll)
+library(tsibble)
+library(lubridate)
+library(purrr)
+library(tidyr)
+library(imputeTS)
+library(forecast)
+library(mFilter)
+library(bimets)
+library(glue)
+library(jsonlite)
+library(seasonal)
+library(stringr)
+library(ggplot2)
+
+# 1. Criando os dados manualmente (Corrigido com 2 barras em \(\pi\) e 4 nos parênteses)
+dados <- data.frame(
+  N = c(1, 2, 3, 4, 5,6,7,8,9,10,11),
+  Equação = c("CP", 
+              "CP", 
+              "EI, CP, RT", 
+              "CP", 
+              "CP",
+              "CP",
+              "CP",
+              "CP",
+              "IS,CP",
+              "CP",
+              "CP"),
+  Variável = c(r"(\(\pi_t^{L,sa}\))", 
+               r"(\(\pi_{t}^{IPCA,sa}\))", 
+               r"(\(\pi_{t,t+4\mid t}^{e}\))",  
+               r"(\(\hat{\pi}_{t}^*\))",  
+               r"(\(\hat{\pi}_{t}^{*agri}\))",
+               r"(\(\hat{\pi}_{t}^{*metal}\))",
+               r"(\(\hat{\pi}_{t}^{*energia}\))",
+               r"(\(\widehat{\Delta e}_{t}\))",
+               r"(\(h_t\))",
+               r"(\(Clima_{t}^2\))",
+               r"(\(d_{t-i}^{el}\))"
+               ), 
+  Descrição = c("Inflação trimestral de preços livres do Índice Nacional de Preços                  ao Consumidor Amplo (IPCA) com ajuste sazonal", 
+                "Inflação trimestral do IPCA com ajuste sazonal", 
+                "Expectativa em t, apurada pela pesquisa Focus, acerca da inflação                  esperada para quatro trimestres à frente (média ao longo do                        trimestre das expectativas para doze meses à frente)", 
+                "Inflação trimestral importada de commodities, medida pelo desvio                   da variação do Índice de Commodities – Brasil (IC-Br) em reais em                  relação à meta de inflação doméstica", 
+                "Inflação trimestral importada de commodities agrícolas, medida                     pelo desvio do IC-Br Agropecuária em relação à meta de inflação                    doméstica",
+                "Inflação trimestral importada de commodities metálicas, medida                     pelo desvio do IC-Br Metal em relação à meta de inflação                           doméstica",
+                "Inflação trimestral importada de commodities energéticas, medida
+                 pelo desvio do IC-Br Energia em relação à meta de inflação                         doméstica",
+                "Desvio da variação trimestral da taxa de câmbio nominal (R$/US$)                   em relação à sua variação de longo prazo prevista pela teoria da                   paridade do poder de compra",
+                "Hiato do produto doméstico",
+                "Variável que captura choques de oferta",
+                "Dummy que assume valor 1 quando a anomalia climática
+                 é positiva (eventos El Niño)"),
+
+  Tipo = c("Endógena", "Exógena", "Endógena", "Exógena", "Exógena", "Exógena", "Exógena","Exógena","Endógena","Exógena","Exógena")
+)
+
+# 2. Gerando a tabela formatada para o HTML
+knitr::kable(dados, 
+             col.names = c("N", "Equação", "Variável", "Descrição", "Tipo"), 
+             align = c("l", "l", "l", "l", "l"),
+             escape = FALSE) |> # Mantém ativado para o HTML ler o código matemático
+  kable_styling(
+    bootstrap_options = "basic", 
+    full_width = TRUE           
+  ) |>
+  column_spec(1:5, width = "20%") |>
+  row_spec(0, extra_css = "border-top: 2px solid black; border-bottom: 2px solid black;")
+
+```
+
+## Etapa 2: coletar os dados
+
+Em seguida, devemos identificar as fontes de dados que dão origem a estas variáveis e coletar os dados brutos. No caso do MPP, alguns dados não estão disponíveis de forma fácil ou pública, então adptações ou cortes podem ser necessários.
+
+Em suma, é necessário coletar dados destas fontes para o exemplo em questão:
+
+- Banco Central do Brasil (BCB)
+- Instituto Brasileiro de Geografia e Estatística (IBGE)
+- National Oceanic and Atmospheric Administration (NOAA)
+
+No caso do BCB, os dados podem vir de mais de uma fonte: Sistema Gerenciador de Séries Temporais, Sistema de Expectativas, API Documentos do Copom e outras APIs espalhadas pelo site da instituição.
+
+Através da linguagem `R` e do pacote `rbcb` coletamos a maioria destes dados.
+
+```{r}
+
+```
+
+No caso do IBGE, todas as tabelas de dados necessárias estão localizadas no sistema SIDRA e podemos usar o pacote `sidrar` para fazer a coleta dos dados.
+
+```{r}
+
+```
+
+Por fim, no caso do NOAA, a variável ONI é disponibilizada através de um URL para um arquivo de texto. Utilizamos o pacote `readr` para coletar esses dados.
+
+```{r}
+
+```
+
+## Etapa 3: tratar dados e criar variáveis
+
+Nesta etapa o objetivo é construir uma tabela final que servirá de base para o modelo, contendo todas as variáveis necessárias. Os dados coletados chegam em variados formatos, nem sempre sendo o tabular. Dessa forma, devemos tratar as informaç\~ies de forma que representamos os dados na unidade de medida apropriada par ao modelo e em formato tabular.
+
+No caso do MPP, devemos converter os dados de modo a obter as variáveis em frequência trimestral e em semelhante a unidade de medida descrita pelo BCB (não é possível replicar as variáveis usadas pela instituição pois o código fonte não é aberto pela mesma). Ademais, algumas variáveis são não observáveis e precisam ser estimadas e outras precisam ser calculadas.
+
+A seguir apresentamos as tabelas individuais para as variáveis do MPP, sendo que algumas variáveis do modelo origina não estão presentes por dificuldade de acesso/disponibilização de dados publicos ou por terem sido arbitrariamente excluídas.
+
+- Expectativa de inflação acumulada quatro trimestres à frente consistente com o modelo (model-consistent expectations)
+
+```{r}
+options(OutDec = ",")
+raw_olinda <- rbcb::get_market_expectations(
+  type = "inflation-12-months",
+  indic = "IPCA"
+)
+
+ipca_expec <- raw_olinda |>
+  dplyr::filter(baseCalculo == 0, Suavizada == "S")|>
+  dplyr::group_by(date = tsibble::yearquarter(Data))|>
+  dplyr::filter(Data == max(Data))|>
+  dplyr::ungroup()|>
+  dplyr::select("date","ipca_expec" = "Mediana") |>
+  dplyr::mutate(date=lubridate::as_date(date))
+
+
+# 2. Gerando a tabela formatada para o HTML
+knitr::kable(tail(ipca_expec,5), 
+             col.names = c("date", "ipca_expec"), 
+             align = c("l", "l"),
+             escape = FALSE,
+             digits = 2) |> # Mantém ativado para o HTML ler o código matemático
+  kable_styling(
+    bootstrap_options = "basic", 
+    full_width = TRUE           
+  ) |>
+  column_spec(1:2, width = "20%") |>
+  row_spec(0, extra_css = "border-top: 2px solid black; border-bottom: 2px solid black;")
+
+ggplot(data = ipca_expec, aes(x = date, y = ipca_expec)) +
+  geom_line(color = "blue", size = 1) +
+  labs(title = "Evolução da Expectativa do IPCA", x = "Data", y = "Expectativa (%)") +
+  theme_minimal()
+
+```
+
+- Inflação trimestral de preços livres do Índice Nacional de Preços ao Consumidor Amplo (IPCA) com ajuste sazonal
+
+```{r}
+# Get SGS data
+options(OutDec = ",")
+options(rbcb_cache = FALSE)
+raw_sgs <- rbcb::get_series(
+  code = c(
+    # Interest rate - Selic Targe Rate (EOP, % p.a., BCB)
+    "selic" = 432,
+    # Free Exchange Rate (Sale, Avg. Real/USD, BCB)
+    "cambio"=3698,
+    # Target inflation rate (%, CMN, BCB)
+    "meta_inflacao"=13521,
+    # Índice nacional de preços ao consumidor - Amplo (IPCA) 
+    "ipca"=433,
+    # Índice nacional de preços ao consumidor - Amplo (IPCA) - Itens livres 
+    "ipca_livres"=11428,
+    # Índice de Commodities - Brasil - IC-Br
+    "ic_br"=27574,
+    # Índice de Commodities - Brasil - Agropecuária - IC-Br Agro
+    "ic_br_agro"=27575,
+    # Índice de Commodities - Brasil - Metal - IC-Br Metal
+    "ic_br_metal"=27576,
+    # Índice de Commodities - Brasil - Energia - IC-Br Enegia
+    "ic_br_energia"=27577,
+    # NFSP sem desvalorização cambial (% PIB) - Fluxo acumulado em 12 meses
+    # Resultado primário - total - Governo Federal e Banco Central
+    "resultado_primario"=5783
+    ), # mesmos códigos acima
+  start_date = "2017-01-01", # Limita o histórico para evitar sobrecarga no servidor do BC
+  end_date = Sys.Date()
+)
+
+ipca_livres_sa <- raw_sgs |>
+  purrr::pluck("ipca_livres") |>
+  dplyr::filter(date >= lubridate::ymd("1999-01-01")) |>
+  dplyr::mutate(
+    # 1. Calcula o acumulado de 3 meses na ponta direita
+    ipca_livres_trim = (RcppRoll::roll_prodr(x = 1 + (ipca_livres/100), n = 3) - 1) * 100
+  ) |>
+  # 2. Filtra os meses de fechamento ANTES de converter para trimestre
+  dplyr::filter(lubridate::month(date) %in% c(3, 6, 9, 12)) |> 
+  dplyr::mutate(
+    # Converte para trimestre (ex: 1999-03-01 vira 1999 Q1)
+    date_quarter = tsibble::yearquarter(date) 
+  ) |>
+  tsibble::as_tsibble(index = date_quarter) |>
+  
+  # 3. Ajuste sazonal reconhecendo a série como trimestral pura
+  fabletools::model(mod_sa = feasts::X_13ARIMA_SEATS(ipca_livres_trim)) |>
+  fabletools::components() |>
+  tsibble::as_tsibble() |>
+  
+  # 4. Recupera a data original de fim de trimestre sem erros de conversão
+  dplyr::mutate(
+    # Transforma 1999 Q1 de volta para 1999-03-01
+    date = lubridate::as_date(date_quarter), 
+    ipca_livres_sa = season_adjust
+  ) |>
+  dplyr::as_tibble() |> 
+  dplyr::select(date, ipca_livres = ipca_livres_trim, ipca_livres_sa)
+
+# 2. Gerando a tabela formatada para o HTML
+knitr::kable(tail(ipca_livres_sa,5), 
+             col.names = c("date", "ipca_livres","ipca_livres_sa"), 
+             align = c("l", "l", "l"),
+             escape = FALSE,
+             digits = 2) |> # Mantém ativado para o HTML ler o código matemático
+  kable_styling(
+    bootstrap_options = "basic", 
+    full_width = TRUE           
+  ) |>
+  column_spec(1:2, width = "20%") |>
+  row_spec(0, extra_css = "border-top: 2px solid black; border-bottom: 2px solid black;")
+
+ggplot(data = ipca_livres_sa, aes(x = date)) +
+  # Primeira linha: Série Original
+  geom_line(aes(y = ipca_livres, color = "Original"), linewidth = 1) +
+  
+  # Segunda linha: Com Ajuste Sazonal
+  geom_line(aes(y = ipca_livres_sa, color = "Com Ajuste Sazonal"), linewidth = 1) +
+  
+  # Personalização de títulos e legendas
+  labs(
+    title = "Preços Livres: Original vs. Ajuste Sazonal",
+    x = "Data",
+    y = "Variação Trimestral (%)",
+    color = "Séries" # Título da legenda
+  ) +
+  
+  # Define as cores exatas de cada linha manualmente
+  scale_color_manual(values = c("Original" = "darkgray", "Com Ajuste Sazonal" = "blue")) +
+  theme_minimal()
+
+```
+
+- Inflação trimestral do IPCA com ajuste sazonal
+
+```{r}
+options(OutDec = ",")
+ipca_sa <- raw_sgs |>
+  purrr::pluck("ipca") |>
+  dplyr::filter(date >= lubridate::ymd("1999-01-01")) |>
+  dplyr::mutate(
+    # 1. Calcula o acumulado trimestral mantendo as datas mensais para o cálculo móvel
+    ipca = (RcppRoll::roll_prodr(x = 1 + (ipca / 100), n = 3) - 1) * 100
+  ) |>
+  # 2. Mantém apenas os fechamentos de trimestre
+  dplyr::filter(lubridate::month(date) %in% c(3, 6, 9, 12)) |> 
+  dplyr::mutate(
+    # 3. Transforma a data em TRIMESTRAL para que o X-13 não acuse falta de dados
+    date = tsibble::yearquarter(date)
+  ) |>
+  # 4. Remove os NAs iniciais cruciais para o modelo rodar
+  dplyr::filter(!is.na(ipca)) |> 
+  tsibble::as_tsibble(index = date) |> 
+  
+  # 5. Roda o X-13 forçando o método clássico X-11 aditivo (robusto contra quebras)
+  fabletools::model(
+    ipcas_sa = feasts::X_13ARIMA_SEATS(ipca ~ transform(`function` = "none") + x11(mode = "add"))
+  ) |>
+  
+  fabletools::components() |>
+  tsibble::as_tsibble() |>
+  
+  # 6. Converte para data comum e isola o resultado para gerar gráficos depois
+  dplyr::mutate(date = lubridate::as_date(date), ipca_sa = season_adjust) |>
+  dplyr::select("date", "ipca", "ipca_sa")
+
+# 2. Gerando a tabela formatada para o HTML
+knitr::kable(tail(ipca_livres_sa,5), 
+             col.names = c("date", "ipca","ipca_sa"), 
+             align = c("l", "l", "l"),
+             escape = FALSE,
+             digits = 2) |> # Mantém ativado para o HTML ler o código matemático
+  kable_styling(
+    bootstrap_options = "basic", 
+    full_width = TRUE           
+  ) |>
+  column_spec(1:2, width = "20%") |>
+  row_spec(0, extra_css = "border-top: 2px solid black; border-bottom: 2px solid black;")
+
+ggplot(data = ipca_sa, aes(x = date)) +
+  # Primeira linha: Série Original
+  geom_line(aes(y = ipca, color = "Original"), linewidth = 1) +
+  
+  # Segunda linha: Com Ajuste Sazonal
+  geom_line(aes(y = ipca_sa, color = "Com Ajuste Sazonal"), linewidth = 1) +
+  
+  # Personalização de títulos e legendas
+  labs(
+    title = "IPCA: Original vs. Ajuste Sazonal",
+    x = "Data",
+    y = "Variação Trimestral (%)",
+    color = "Séries" # Título da legenda
+  ) +
+  
+  # Define as cores exatas de cada linha manualmente
+  scale_color_manual(values = c("Original" = "darkgray", "Com Ajuste Sazonal" = "blue")) +
+  theme_minimal()
+
+```
+
+```{r}
+options(OutDec = ",")
+macro_data <-purrr::reduce(
+  .x = list(
+    ipca_expec,
+    ipca_livres_sa,
+    ipca_sa
+    ),
+  .f = dplyr::full_join,
+  by = "date"
+  )|>
+  dplyr::arrange(date)
+
+# 2. Gerando a tabela formatada para o HTML
+knitr::kable(tail(macro_data,5), 
+             col.names = c("date", "ipca_expec","ipca_livres","ipca_livres_sa","ipca","ipca_sa"), 
+             align = c("l", "l", "l", "l", "l", "l"),
+             escape = FALSE,
+             digits = 2) |> # Mantém ativado para o HTML ler o código matemático
+  kable_styling(
+    bootstrap_options = "basic", 
+    full_width = TRUE           
+  ) |>
+  column_spec(1:2, width = "20%") |>
+  row_spec(0, extra_css = "border-top: 2px solid black; border-bottom: 2px solid black;")
+
+```
