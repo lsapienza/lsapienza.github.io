@@ -38,6 +38,9 @@ jobs:
             any::xml2
             any::kableExtra
             any::fredr
+            any::rbcb
+            any::sidrar
+                               
 
 
       - name: Build site (build.ps1)
