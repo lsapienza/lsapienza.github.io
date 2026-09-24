@@ -35,7 +35,7 @@ jobs:
             'fredr', 'rbcb', 'sidrar', 'dplyr', 'RcppRoll', 
             'tsibble', 'lubridate', 'purrr', 'tidyr', 'imputeTS', 
             'forecast', 'mFilter', 'bimets', 'glue', 'jsonlite', 
-            'seasonal', 'stringr', 'ggplot2'
+            'seasonal', 'stringr', 'ggplot2','fabletools' 
           ))"
         #uses: r-lib/actions/setup-r-dependencies@v2
         #with:
