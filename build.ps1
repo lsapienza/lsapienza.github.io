@@ -110,4 +110,37 @@ if (Test-Path $cvSourceDir) {
     }
 }
 
+# --- Calendário econômico: HTML pronto, gerado toda semana pela tarefa agendada
+# do Claude (não passa pelo Quarto). Copiado para docs/calendario/, com um índice
+# das semanas anteriores montado a partir dos arquivos em calendario/arquivo/.
+$calSourceDir = Join-Path $root "calendario"
+if (Test-Path $calSourceDir) {
+    $calDocsDir = Join-Path $docsDir "calendario"
+    New-Item -ItemType Directory -Force -Path (Join-Path $calDocsDir "arquivo") | Out-Null
+    Copy-Item (Join-Path $calSourceDir "*") $calDocsDir -Recurse -Force
+    $weeks = Get-ChildItem (Join-Path $calSourceDir "arquivo") -Filter "????-??-??.html" -ErrorAction SilentlyContinue |
+        Sort-Object Name -Descending |
+        ForEach-Object { "<li><a href=""$($_.Name)"">Semana de $($_.BaseName)</a></li>" }
+    $archive = @"
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calend&aacute;rio Econ&ocirc;mico &mdash; Arquivo</title>
+  <style>body{font:15px/1.5 system-ui,sans-serif;max-width:640px;margin:0 auto;padding:24px 16px;background:#fff;color:#1d1f23}</style>
+</head>
+<body>
+  <p><a href="/calendario/">&larr; Calend&aacute;rio da semana</a></p>
+  <h1>Calend&aacute;rio Econ&ocirc;mico &mdash; semanas anteriores</h1>
+  <ul>
+$($weeks -join "`n")
+  </ul>
+</body>
+</html>
+"@
+    Set-Content -Path (Join-Path $calDocsDir "arquivo\index.html") -Value $archive -Encoding utf8
+    Write-Host "  Calendario: $($weeks.Count) semana(s) no arquivo" -ForegroundColor DarkYellow
+}
+
 Write-Host "Build complete. Output in docs/." -ForegroundColor Green

@@ -23,6 +23,8 @@ website:
         text: Sobre
       - href: blog.pt.qmd
         text: Blog
+      - href: /calendario/
+        text: Calendário Econômico
     right:
       - icon: linkedin
         href: https://www.linkedin.com/in/leonardo-sapienza
