@@ -55,7 +55,12 @@ outra consideração de estilo ou completude do resumo.
 3. **Redação** (Claude): recebe o texto extraído e produz o resumo executivo,
    citando apenas números que aparecem literalmente no texto.
 4. **Envio** (Python + GitHub Actions): formata o resumo em e-mail e envia.
-5. **Orquestração** (GitHub Actions): roda o fluxo em agenda semanal (o Focus
+5. **Publicação no blog** (Python + GitHub Actions): reaproveita o mesmo
+   HTML já redigido na etapa 3 — sem nova interpretação — e remonta como
+   post Quarto em `posts/focus-AAAA-MM-DD.pt.qmd`, publicado no blog
+   pessoal hospedado neste mesmo repositório (ver
+   `.github/workflows/focus-blog.yml` e `src/gerar_post_blog.py`).
+6. **Orquestração** (GitHub Actions): roda o fluxo em agenda semanal (o Focus
    é publicado às segundas-feiras) e trata falhas de cada etapa de forma
    isolada.
 

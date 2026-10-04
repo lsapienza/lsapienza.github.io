@@ -4,6 +4,14 @@ on:
   push:
     branches: [main]
   workflow_dispatch: {}
+  # O estágio 4/4 do resumo-focus (.github/workflows/focus-blog.yml) commita
+  # o post do blog usando o GITHUB_TOKEN padrão do job dele, e um push feito
+  # com esse token NÃO dispara outros workflows via `on: push` (proteção do
+  # GitHub contra loop recursivo) — sem este gatilho extra, o post seria
+  # commitado mas o site nunca seria reconstruído com ele.
+  workflow_run:
+    workflows: ["Focus (4/4) - Publicação no blog"]
+    types: [completed]
 
 permissions:
   contents: read
@@ -17,6 +25,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Só constrói por causa do workflow_run se ele tiver terminado com
+    # sucesso (evitar reconstruir o site a partir de um commit que nunca
+    # chegou a ser feito, caso o estágio 4/4 falhe).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     steps:
       - uses: actions/checkout@v4
 

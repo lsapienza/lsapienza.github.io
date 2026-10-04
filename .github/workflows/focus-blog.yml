@@ -1,0 +1,88 @@
+# =============================================================================
+# ESTÁGIO 4/4 do pipeline resumo-focus: PUBLICAÇÃO NO BLOG (determinístico).
+#
+# Este repositório também hospeda o site pessoal (Quarto) publicado por esta
+# mesma branch main. Para não misturar as duas coisas, todo o código do
+# resumo-focus vive isolado em resumo-focus/ — só os workflows (que o GitHub
+# Actions exige em .github/workflows/ na raiz) ficam fora dessa subpasta.
+#
+# Este workflow só faz o que é mecânico: pegar o HTML já pronto (redigido
+# pelo agente no Estágio 2, o mesmo que vai por e-mail no Estágio 3) e
+# reaproveitar esse texto já aprovado para montar um post do blog. Nenhuma
+# interpretação acontece aqui — gerar_post_blog.py só extrai e remonta
+# texto que já existe (ver CLAUDE.md — princípio de separação entre
+# determinístico e julgamento).
+#
+# Como os quatro estágios se encaixam:
+#   (1) .github/workflows/focus-download.yml — baixa o PDF e extrai o texto.
+#   (2) Rotina do agente (fora deste repositório de workflows) — redige o
+#       resumo executivo e commita output/focus/focus_AAAA-MM-DD.html.
+#   (3) .github/workflows/focus-email.yml — envia esse HTML por e-mail.
+#   (4) ESTE WORKFLOW — mesmo gatilho do Estágio 3 (push do HTML), gera
+#       posts/focus_AAAA-MM-DD.pt.qmd a partir dele e commita em `main`.
+#
+# ATENÇÃO — pegadinha do GITHUB_TOKEN (ver nota em focus-download.yml):
+#   O commit abaixo usa o GITHUB_TOKEN padrão do job, então o push que ele
+#   faz NÃO dispara o workflow "Publish site" via `on: push` (proteção do
+#   GitHub contra loop recursivo). Por isso publish.yml tem um gatilho
+#   adicional `workflow_run` apontando para o nome deste workflow — sem
+#   ele, o post seria commitado mas o site nunca seria reconstruído.
+# =============================================================================
+
+name: "Focus (4/4) - Publicação no blog"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "resumo-focus/output/focus/focus_*.html"
+  # Permite reprocessar manualmente (ex.: o HTML foi commitado antes deste
+  # workflow existir, ou o post precisa ser regerado após um ajuste em
+  # gerar_post_blog.py) sem precisar de um novo commit do HTML.
+  workflow_dispatch: {}
+
+# Necessário para o job poder commitar e dar push em `main`.
+permissions:
+  contents: write
+
+concurrency:
+  group: focus-blog
+  cancel-in-progress: false
+
+jobs:
+  gerar-post:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: resumo-focus
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v5
+
+      - name: Configurar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Gerar post do blog a partir do resumo mais recente
+        run: |
+          set -euo pipefail
+          HTML_MAIS_RECENTE=$(ls -t output/focus/focus_*.html | head -n 1)
+          echo "Gerando post a partir de: $HTML_MAIS_RECENTE"
+          python src/gerar_post_blog.py "$HTML_MAIS_RECENTE"
+
+      - name: Commitar o post gerado
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ../posts/focus-*.pt.qmd
+          if git diff --cached --quiet; then
+            echo "Nada novo para commitar (post já estava atualizado)."
+          else
+            git commit -m "Blog: resumo do Focus de $(date -u +%F)"
+            git push
+          fi

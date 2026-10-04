@@ -1,0 +1,21 @@
+---
+title: "Focus revisa IPCA e PIB de 2026 para baixo"
+date: 2026-09-11
+description: "Resumo do Boletim Focus do Banco Central — semana de referência 2026-09-11."
+output-file: focus-2026-09-11.html
+categories: [economia, focus]
+---
+
+*Semana de referência: 2026-09-11 · Fonte: Banco Central do Brasil*
+
+Segundo o Focus mais recente, o mercado revisou para baixo a projeção de IPCA 2026, de 5,00% (semana anterior) para 4,90% — quarta queda consecutiva. A mediana do PIB 2026 também recuou, de 1,93% para 1,89%. A Selic segue estável em 13,75% a.a. para 2026, sem alteração nas últimas 4 semanas. O câmbio para 2026 permanece em R$ 5,20; já a mediana para 2027 caiu de R$ 5,30 para R$ 5,28.
+
+Nos horizontes mais longos, o IPCA 2027 subiu ligeiramente de 4,29% para 4,30%, enquanto o PIB 2027 recuou de 1,50% para 1,45%.
+
+## Principais revisões da semana
+
+- **IPCA (2026)**: 5,00 → 4,90
+- **PIB Total (2026)**: 1,93 → 1,89
+- **Câmbio (2027)**: 5,30 → 5,28
+
+*Fonte: Boletim Focus — Expectativas de Mercado, 11 de setembro de 2026 (Banco Central do Brasil). Todos os valores citados constam literalmente no relatório original. Este resumo tem caráter informativo e não constitui recomendação de investimento.*
