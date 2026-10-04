@@ -1,0 +1,66 @@
+---
+title: "Índice de Tom do Copom: o que a linguagem da ata diz sobre a Selic"
+date: 2026-10-04
+description: "Três LLMs e um léxico hawkish/dovish pontuam o tom das atas do Copom — e só os LLMs explicam a variação real da Selic."
+output-file: indice-tom-copom.html
+categories: [economia, copom, llm]
+---
+
+A ata do Copom não é só um resumo da decisão de juros — o jeito como o
+comitê descreve o cenário de inflação e o balanço de riscos também carrega
+informação. Este projeto testa essa hipótese de forma direta: será que o
+**tom** da ata (hawkish ou dovish) explica a variação da Selic decidida
+naquela mesma reunião?
+
+## Metodologia
+
+Cada ata, da 232ª à 281ª reunião (2020–2026), foi pontuada em quatro formas
+independentes, todas na mesma escala contínua de $-3$ (fortemente dovish) a
+$+3$ (fortemente hawkish):
+
+- **Três LLMs em paralelo** — Gemini, Claude e OpenAI — lendo o mesmo
+  recorte de texto (só as seções de conjuntura e de riscos, cortando antes
+  da seção que já anuncia a decisão de juros) com a mesma persona e as
+  mesmas instruções.
+- **Um baseline léxico** — um dicionário hawkish/dovish de 40 termos do
+  jargão do Copom, contando ocorrências — o piso de comparação da
+  literatura de dicionários, sem custo de API e sem LLM.
+
+Cada tom foi calibrado contra a variação efetiva da meta Selic por uma
+regressão OLS simples, e a comparação entre modelos foi formalizada pelo
+teste de Vuong (1989) para modelos não aninhados — em vez de comparar
+$R^2$ diretamente. A robustez da calibração foi avaliada em três exercícios
+complementares: in-sample, holdout (últimas 6 reuniões) e walk-forward
+(janela expansiva, prevendo uma reunião por vez só com o que já era
+conhecido até ali).
+
+## Resultado
+
+Os três LLMs explicam a variação da Selic de forma estatisticamente
+significativa — Gemini ($\hat\beta=0{,}32$, $p<0{,}001$, $R^2=0{,}31$),
+Claude ($\hat\beta=0{,}47$, $p<0{,}001$, $R^2=0{,}34$) e OpenAI
+($\hat\beta=0{,}48$, $p<0{,}001$, $R^2=0{,}25$) — o que o léxico simples
+**não** faz ($p=0{,}95$, $R^2\approx0$). O teste de Vuong confirma essa
+diferença como robusta para os três LLMs contra o léxico ($p=0{,}0008$,
+$p<0{,}001$ e $p=0{,}0063$, respectivamente), mas não encontra diferença
+robusta entre os três LLMs entre si (todos os pares com $p>0{,}1$) — o
+ganho está em usar um LLM de propósito geral, não em qual LLM específico.
+
+O exercício de walk-forward reforça essa leitura de um jeito mais confiável
+que um holdout isolado: agregando o erro sobre 30 previsões espalhadas por
+vários regimes de juros (ciclos de alta, de corte, de pausa), os três LLMs
+têm RMSE menor que o léxico — o Claude na frente (RMSE$=0{,}484$), seguido
+por OpenAI ($0{,}526$) e Gemini ($0{,}544$), contra $0{,}587$ do léxico.
+
+![Tom calibrado por cada modelo vs. variação real da Selic, reunião a
+reunião.](indice-tom-copom-comparativo.png){width=90%}
+
+## Próximos passos
+
+A versão completa — com a revisão de literatura, o detalhamento da
+metodologia, as tabelas de calibração e os três exercícios de robustez —
+está no [paper técnico completo](https://github.com/lsapienza/lsapienza.github.io/blob/main/copom-tone-index/paper/paper.pdf)
+(PDF), gerado inteiramente por código a partir dos dados reais do
+pipeline. Os próximos passos incluem erros-padrão robustos a
+autocorrelação (HAC/Newey-West) e uma revisão de cobertura do léxico numa
+amostra maior.
