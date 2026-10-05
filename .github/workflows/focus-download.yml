@@ -55,12 +55,12 @@ name: "Focus (1/3) - Download e Extração"
 
 on:
   schedule:
-    # 09h15 no horário de Brasília (BRT = UTC-3, sem horário de verão desde
-    # 2019) = 12h15 UTC, toda segunda-feira. Se a segunda for feriado e o
+    # 08h30 no horário de Brasília (BRT = UTC-3, sem horário de verão desde
+    # 2019) = 11h30 UTC, toda segunda-feira. Se a segunda for feriado e o
     # Focus não tiver sido publicado ainda, baixar_focus.py recua os dias
     # sozinho (ver lógica de retry em src/baixar_focus.py); não é necessário
     # tratar feriado aqui no workflow.
-    - cron: "15 12 * * 1"
+    - cron: "30 11 * * 1"
   # Permite disparo manual pela aba Actions — útil para reprocessar uma
   # semana específica ou depurar o workflow sem esperar a segunda-feira.
   workflow_dispatch: {}
