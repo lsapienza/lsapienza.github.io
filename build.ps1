@@ -143,4 +143,36 @@ $($weeks -join "`n")
     Write-Host "  Calendario: $($weeks.Count) semana(s) no arquivo" -ForegroundColor DarkYellow
 }
 
+# --- Boletim Focus: mesmo esquema do calendario. HTML pronto em focus/, gerado
+# toda semana pela tarefa agendada do Claude (ver resumo-focus/PUBLICACAO.md).
+$focusSourceDir = Join-Path $root "focus"
+if (Test-Path $focusSourceDir) {
+    $focusDocsDir = Join-Path $docsDir "focus"
+    New-Item -ItemType Directory -Force -Path (Join-Path $focusDocsDir "arquivo") | Out-Null
+    Copy-Item (Join-Path $focusSourceDir "*") $focusDocsDir -Recurse -Force
+    $reports = Get-ChildItem (Join-Path $focusSourceDir "arquivo") -Filter "????-??-??.html" -ErrorAction SilentlyContinue |
+        Sort-Object Name -Descending |
+        ForEach-Object { "<li><a href=""$($_.Name)"">Relat&oacute;rio de $($_.BaseName)</a></li>" }
+    $focusArchive = @"
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boletim Focus &mdash; Arquivo</title>
+  <style>body{font:15px/1.5 system-ui,sans-serif;max-width:640px;margin:0 auto;padding:24px 16px;background:#fff;color:#1d1f23}</style>
+</head>
+<body>
+  <p><a href="/focus/">&larr; Focus da semana</a></p>
+  <h1>Boletim Focus &mdash; semanas anteriores</h1>
+  <ul>
+$($reports -join "`n")
+  </ul>
+</body>
+</html>
+"@
+    Set-Content -Path (Join-Path $focusDocsDir "arquivo\index.html") -Value $focusArchive -Encoding utf8
+    Write-Host "  Focus: $($reports.Count) relatorio(s) no arquivo" -ForegroundColor DarkYellow
+}
+
 Write-Host "Build complete. Output in docs/." -ForegroundColor Green

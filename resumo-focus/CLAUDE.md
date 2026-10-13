@@ -64,6 +64,11 @@ outra consideração de estilo ou completude do resumo.
    é publicado às segundas-feiras) e trata falhas de cada etapa de forma
    isolada.
 
+**Desde 13/10/2026 o canal principal é a página `/focus/` do site** (mesmo
+esquema do `/calendario/`): `src/tabular_focus.py` transforma o texto em JSON
+literal e a tarefa agendada do Claude escreve só os destaques. Roteiro em
+`PUBLICACAO.md`.
+
 ## Estrutura de pastas proposta
 
 ```

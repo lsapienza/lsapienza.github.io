@@ -25,6 +25,8 @@ website:
         text: Blog
       - href: /calendario/
         text: Calendário Econômico
+      - href: /focus/
+        text: Boletim Focus
     right:
       - icon: linkedin
         href: https://www.linkedin.com/in/leonardo-sapienza
