@@ -4,11 +4,13 @@ from unittest.mock import Mock, patch
 import pytest
 
 from src.baixar_focus import (
+    FocusAindaNaoPublicado,
     baixar_conteudo,
     baixar_focus_mais_recente,
     encontrar_pdf_mais_recente,
     montar_url,
     salvar_pdf,
+    sexta_de_referencia,
     ultima_segunda_feira,
 )
 
@@ -56,26 +58,62 @@ def test_baixar_conteudo_retorna_none_quando_404(mock_get):
     assert baixar_conteudo("http://exemplo.com") is None
 
 
+@pytest.mark.parametrize(
+    "referencia, esperado",
+    [
+        (date(2026, 10, 12), date(2026, 10, 9)),  # segunda -> sexta anterior
+        (date(2026, 10, 13), date(2026, 10, 9)),  # terça (Focus atrasado por feriado)
+        (date(2026, 10, 18), date(2026, 10, 9)),  # domingo -> mesma semana
+    ],
+)
+def test_sexta_de_referencia(referencia, esperado):
+    assert sexta_de_referencia(referencia) == esperado
+
+
 @patch("src.baixar_focus.baixar_conteudo")
 def test_encontrar_pdf_mais_recente_recua_em_feriado(mock_baixar):
-    # segunda (404, feriado) -> domingo (404) -> sábado (200)
-    mock_baixar.side_effect = [None, None, b"conteudo-pdf"]
+    # sexta (404, feriado) -> quinta (200)
+    mock_baixar.side_effect = [None, b"conteudo-pdf"]
 
-    conteudo, data_encontrada = encontrar_pdf_mais_recente(date(2024, 1, 8))
+    conteudo, data_encontrada = encontrar_pdf_mais_recente(date(2024, 1, 5))
 
     assert conteudo == b"conteudo-pdf"
-    assert data_encontrada == date(2024, 1, 6)
-    assert mock_baixar.call_count == 3
+    assert data_encontrada == date(2024, 1, 4)
+    assert mock_baixar.call_count == 2
 
 
 @patch("src.baixar_focus.baixar_conteudo")
 def test_encontrar_pdf_mais_recente_desiste_apos_limite(mock_baixar):
     mock_baixar.return_value = None
 
-    with pytest.raises(RuntimeError):
-        encontrar_pdf_mais_recente(date(2024, 1, 8), max_tentativas=3)
+    with pytest.raises(FocusAindaNaoPublicado):
+        encontrar_pdf_mais_recente(date(2024, 1, 5))
 
     assert mock_baixar.call_count == 3
+
+
+@patch("src.baixar_focus.baixar_conteudo")
+def test_nao_cai_no_relatorio_da_semana_anterior(mock_baixar, tmp_path):
+    # Caso real de 12/10/2026: o PDF de 9/10 ainda não tinha saído. Antes, o
+    # script recuava 10 dias; agora deve só avisar que não foi publicado.
+    mock_baixar.return_value = None
+
+    with pytest.raises(FocusAindaNaoPublicado):
+        baixar_focus_mais_recente(referencia=date(2026, 10, 12), pasta_destino=tmp_path)
+
+    datas_tentadas = [c.args[0] for c in mock_baixar.call_args_list]
+    assert datas_tentadas == [montar_url(date(2026, 10, d)) for d in (9, 8, 7)]
+
+
+@patch("src.baixar_focus.baixar_conteudo")
+def test_nao_baixa_de_novo_se_ja_existe(mock_baixar, tmp_path):
+    existente = tmp_path / "focus_2026-10-09.pdf"
+    existente.write_bytes(b"%PDF")
+
+    caminho = baixar_focus_mais_recente(referencia=date(2026, 10, 14), pasta_destino=tmp_path)
+
+    assert caminho == existente
+    mock_baixar.assert_not_called()
 
 
 def test_salvar_pdf_grava_no_caminho_esperado(tmp_path):
@@ -86,18 +124,18 @@ def test_salvar_pdf_grava_no_caminho_esperado(tmp_path):
 
 
 @patch("src.baixar_focus.encontrar_pdf_mais_recente")
-def test_baixar_focus_mais_recente_usa_ultima_segunda_como_ponto_de_partida(
+def test_baixar_focus_mais_recente_usa_sexta_de_referencia_como_ponto_de_partida(
     mock_encontrar, tmp_path
 ):
-    mock_encontrar.return_value = (b"conteudo-pdf", date(2024, 1, 8))
+    mock_encontrar.return_value = (b"conteudo-pdf", date(2024, 1, 5))
 
     caminho = baixar_focus_mais_recente(
         referencia=date(2024, 1, 10), pasta_destino=tmp_path
     )
 
     data_inicial_usada = mock_encontrar.call_args[0][0]
-    assert data_inicial_usada == date(2024, 1, 8)
-    assert caminho == tmp_path / "focus_2024-01-08.pdf"
+    assert data_inicial_usada == date(2024, 1, 5)
+    assert caminho == tmp_path / "focus_2024-01-05.pdf"
 
 
 @pytest.mark.online

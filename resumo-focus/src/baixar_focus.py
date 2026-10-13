@@ -13,11 +13,18 @@ from pathlib import Path
 import requests
 
 BASE_URL = "https://www.bcb.gov.br/content/focus/focus/R{data}.pdf"
-MAX_TENTATIVAS = 10
+# O PDF leva a data da sexta de referência (ex.: R20261009 para o relatório
+# de 9/10, publicado na segunda seguinte). Recuar até 3 dias (sex, qui, qua)
+# cobre um feriado na sexta sem nunca cair no relatório da semana anterior.
+MAX_TENTATIVAS = 3
 TIMEOUT_SEGUNDOS = 30
 PASTA_DESTINO_PADRAO = Path("data")
 
 logger = logging.getLogger(__name__)
+
+
+class FocusAindaNaoPublicado(RuntimeError):
+    """O relatório da semana ainda não está no site do BCB (feriado/atraso)."""
 
 
 def montar_url(data_alvo: date) -> str:
@@ -28,6 +35,11 @@ def montar_url(data_alvo: date) -> str:
 def ultima_segunda_feira(referencia: date) -> date:
     """Retorna a data da última segunda-feira até e incluindo `referencia`."""
     return referencia - timedelta(days=referencia.weekday())
+
+
+def sexta_de_referencia(referencia: date) -> date:
+    """Sexta-feira cujo relatório é publicado na semana de `referencia`."""
+    return ultima_segunda_feira(referencia) - timedelta(days=3)
 
 
 def baixar_conteudo(url: str, timeout: int = TIMEOUT_SEGUNDOS) -> bytes | None:
@@ -60,7 +72,7 @@ def encontrar_pdf_mais_recente(
             return conteudo, data_alvo
         data_alvo -= timedelta(days=1)
 
-    raise RuntimeError(
+    raise FocusAindaNaoPublicado(
         f"Nenhum PDF do Focus encontrado em {max_tentativas} tentativas "
         f"a partir de {data_inicial.isoformat()}."
     )
@@ -81,17 +93,34 @@ def baixar_focus_mais_recente(
     pasta_destino: Path = PASTA_DESTINO_PADRAO,
     max_tentativas: int = MAX_TENTATIVAS,
 ) -> Path:
-    """Ponto de entrada: localiza, baixa e salva o Boletim Focus mais recente."""
+    """Ponto de entrada: localiza, baixa e salva o Boletim Focus da semana.
+
+    Se o PDF da semana já estiver em `pasta_destino`, não baixa de novo.
+    Levanta FocusAindaNaoPublicado se o relatório da semana ainda não saiu —
+    nunca recua até o relatório da semana anterior.
+    """
     referencia = referencia or date.today()
-    data_inicial = ultima_segunda_feira(referencia)
+    data_inicial = sexta_de_referencia(referencia)
+    for i in range(max_tentativas):
+        existente = pasta_destino / f"focus_{(data_inicial - timedelta(days=i)).isoformat()}.pdf"
+        if existente.exists():
+            logger.info("PDF da semana já baixado: %s", existente)
+            return existente
     conteudo, data_encontrada = encontrar_pdf_mais_recente(data_inicial, max_tentativas)
     return salvar_pdf(conteudo, data_encontrada, pasta_destino)
 
 
 def main() -> None:
+    # Logs vão para stderr; o stdout fica só com o caminho do PDF (ou vazio se
+    # o relatório da semana ainda não saiu), para o workflow consumir.
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    caminho = baixar_focus_mais_recente()
-    logger.info("PDF salvo em %s", caminho)
+    try:
+        caminho = baixar_focus_mais_recente()
+    except FocusAindaNaoPublicado as erro:
+        logger.warning("Focus da semana ainda não publicado: %s", erro)
+        return
+    logger.info("PDF em %s", caminho)
+    print(caminho)
 
 
 if __name__ == "__main__":
