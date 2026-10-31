@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendário Econômico Semanal</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1f23;--mute:#6b7078;--line:#e3e4e1;--acc:#1f5fbf;--hi:#c0392b;--bc:#7b3fb0;--le:#1e8a5a;--chip:#eef0f3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--card:#1d2024;--ink:#e8e9eb;--mute:#9aa0a8;--line:#2d3136;--acc:#6fa3ff;--hi:#ff7a6b;--bc:#c49bff;--le:#5fd39a;--chip:#2a2e33}}
+:root[data-theme="dark"]{--bg:#15171a;--card:#1d2024;--ink:#e8e9eb;--mute:#9aa0a8;--line:#2d3136;--acc:#6fa3ff;--hi:#ff7a6b;--bc:#c49bff;--le:#5fd39a;--chip:#2a2e33}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.box h2{font-size:15px;margin:0 0 8px}
+.box ul{margin:0;padding-left:18px}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.bar button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+.bar button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.lbl{color:var(--mute);font-size:12px;align-self:center;margin-right:4px}
+.day{margin-top:18px}
+.day h3{font-size:15px;margin:0 0 6px;padding-bottom:4px;border-bottom:2px solid var(--acc)}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{font-size:12px;color:var(--mute);font-weight:600;background:var(--chip)}
+.tbl td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl td.t{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--mute)}
+.ctry{white-space:nowrap;font-size:12px}
+.imp{color:var(--hi);letter-spacing:-1px;white-space:nowrap}
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:4px;margin-left:6px;border:1px solid currentColor}
+.tag.bc{color:var(--bc)}.tag.le{color:var(--le)}.tag.ad{color:var(--acc)}
+tr.high td.ev{font-weight:600}
+.note{color:var(--mute);font-size:12px}
+.empty{color:var(--mute);padding:8px}
+@media (max-width:640px){.tbl .hide-s{display:none}.tbl th,.tbl td{padding:5px 6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="note"><a href="/pt/index.html">← lsapienza.github.io</a> · <a href="/calendario/arquivo/">Semanas anteriores</a></p>
+<h1>Calendário Econômico Semanal — 2 a 6 de novembro de 2026</h1>
+<p class="sub">Horários de Brasília (GMT−3). Atenção: os EUA saíram do horário de verão em 1º/nov — dados americanos das 8h30 de Nova York saem às <b>10h30</b> de Brasília (antes 9h30). Consenso de mercado: Investing.com (coletado em 31/10/2026, sábado). Brasil, EUA, China, Japão, Zona do Euro, Alemanha e Reino Unido.</p>
+
+<div class="box">
+<h2>Destaques da semana</h2>
+<ul>
+<li><b>Copom</b> (reunião 3–4/nov; decisão qua., 18h30). Selic atual em 13,75% após o corte de setembro; a leitura predominante na imprensa é de <b>manutenção</b>, mas o Investing.com ainda não publicou consenso — conferir o Focus e as notas pré-Copom. Primeira decisão após o 2º turno das eleições.</li>
+<li><b>BoE</b> (qui., 9h; ata e votos no mesmo horário; Bailey fala às 9h30): consenso de <b>alta de 3,75% para 4,00%</b>, com placar esperado de 7×2 — a decisão de maior risco da semana. Pill fala na sexta.</li>
+<li><b>EUA:</b> <b>payroll de outubro</b> (sex., 10h30; ant. +29 mil e desemprego 4,2%, consenso ainda não publicado), <b>ISM industrial</b> (seg., 12h; ant. 54,5) e <b>de serviços</b> (qua., 12h; ant. 54,9), <b>JOLTS</b> (ter., 12h), ADP (qua., 10h15), balança comercial (qua.), produtividade/custo unitário do 3º tri (qui.) e Michigan preliminar de novembro (sex., 12h). <b>Eleições de meio de mandato</b> na terça (3/nov). Agenda cheia de Fed: Goolsbee (seg.), Barkin e Logan (qui.), Williams e Bowman (sex.); SLOOS na segunda. Anúncio trimestral de refinanciamento do Tesouro (qua.).</li>
+<li><b>Brasil:</b> <b>feriado de Finados</b> na segunda (mercados fechados). PMI industrial (ter.), IPC-Fipe (qua.), <b>Caged de setembro</b> (qua., 14h30; consenso +180 mil, ant. +165,8 mil — remarcado da semana passada), <b>produção industrial de setembro</b> (qui., 9h; ant. −0,6% m/m), PMIs de serviços/composto (qui.) e <b>balança comercial de outubro</b> (sex., 15h; ant. US$ 7,74 bi). Leilões do Tesouro: NTN-B + LFT (ter.) e LTN + NTN-F (qui.).</li>
+<li><b>Zona do Euro/Alemanha:</b> <b>CPI preliminar de outubro da ZE</b> (qua., 7h; consenso 3,9% a/a vs. 3,8%), PMIs finais (seg. e qua.), varejo alemão (seg.), encomendas à indústria (qui.) e <b>produção industrial alemã</b> (sex., consenso +0,5% m/m). Lagarde fala na quinta; Nagel três vezes na semana.</li>
+<li><b>China/Japão:</b> PMI de serviços Caixin (ter., 22h45). Japão: feriado na terça (Dia da Cultura), ata do BoJ (qua., 20h50), leilão de JGB de 10 anos (qui., 0h35), PMIs finais e salários de setembro (qui. à noite); <b>Ueda</b> discursa na sexta (13h).</li>
+</ul>
+</div>
+
+<div class="bar" id="fc"><span class="lbl">País:</span></div>
+<div class="bar" id="ft"><span class="lbl">Tipo:</span></div>
+<div class="bar" id="fi"><span class="lbl">Importância:</span></div>
+<div id="out"></div>
+
+<div class="box" style="margin-top:20px">
+<h2>Fontes e notas</h2>
+<ul class="note">
+<li>Investing.com — calendário econômico (consenso “Projeção” e “Anterior”), filtrado para os 7 países; itens muito granulares (posições CFTC de commodities, subitens EIA/MBA) foram omitidos. A coleta foi feita no sábado: boa parte dos consensos (payroll, ISM, Selic, JOLTS) ainda não estava publicada — confira o site ao longo da semana.</li>
+<li>Duplicatas do Investing.com removidas: PMI industrial dos EUA repetido na terça, demissões Challenger em três horários (mantido 9h30, i.e. 7h30 de NY), PMIs de serviços/composto do Japão repetidos na quarta.</li>
+<li>Boletim Focus: o Investing.com lista na segunda (08h25), mas é feriado de Finados — o BCB costuma publicar no dia útil seguinte; colocado na terça.</li>
+<li>Copom: calendário oficial do BCB para 2026 (reunião de 3–4/nov, comunicado às 18h30; ata na terça seguinte, 10/nov). Expectativa de manutenção baseada em notícias, não em consenso do Investing.com.</li>
+<li>Tesouro Nacional — Cronograma de Leilões 2026 (4º trimestre). Os vencimentos desta semana foram inferidos pela alternância semanal dos grupos (mesmos títulos da semana de 19/out) — confirmar nas portarias (10h30 do dia do leilão; propostas 11h00–11h30, resultado a partir de 11h45).</li>
+<li>Tesouro dos EUA — refinanciamento trimestral (estimativas de captação na segunda às 17h e anúncio na quarta às 10h30, horários usuais; confirmar em home.treasury.gov). Leilões de 3, 10 e 30 anos ficam para a semana seguinte.</li>
+<li>Agendas de diretores do BCB e operações extraordinárias (swaps cambiais, leilões de linha, compromissadas) são divulgadas pelo BCB no dia/véspera — verificar em bcb.gov.br. Datas e consensos podem mudar; confira antes de operar.</li>
+</ul>
+</div>
+</div>
+
+<script>
+// [dia, hora, país, importância(0-3), evento, consenso, anterior] — Investing.com
+const D=[[2,"","Brasil",2,"Feriado: Finados (mercados fechados)","",""],[2,"04:00","Alemanha",2,"Vendas no Varejo - Alemanha (Mensal) (Set)","","1,3%"],[2,"04:00","Alemanha",1,"Vendas no Varejo - Alemanha (Anual) (Set)","","-0,4%"],[2,"05:55","Alemanha",2,"PMI Industrial - Alemanha (Out)","54,2","54,2"],[2,"06:00","Zona Euro",2,"PMI Industrial (Out)","52,4","52,4"],[2,"06:30","Reino Unido",1,"PMI Industrial (Out)","52,8","52,8"],[2,"09:00","Alemanha",2,"Discurso de Nagel, Presidente do Bundesbank","",""],[2,"11:45","EUA",3,"PMI Industrial S&P Global (Out)","56,0","56,0"],[2,"12:00","EUA",2,"Gastos de Construção (Mensal) (Set)","","0,9%"],[2,"12:00","EUA",2,"Índice ISM de Emprego no Setor Manufatureiro (Out)","","52,7"],[2,"12:00","EUA",1,"Índice de Novos Pedidos ISM (Out)","","55,3"],[2,"12:00","EUA",3,"PMI Industrial ISM (Out)","","54,5"],[2,"12:00","EUA",2,"Preços no Setor Manufatureiro ISM (Out)","","77,9"],[2,"12:30","EUA",1,"Leilão Americano Bill a 3 meses","","4,050%"],[2,"12:30","EUA",1,"Leilão Americano Bill a 6 meses","","4,210%"],[2,"12:30","EUA",2,"GDPNow do Fed de Atlanta (Q4)","3,2%","3,2%"],[2,"13:15","EUA",1,"Discurso de Goolsbee do Fed","",""],[2,"16:00","EUA",1,"Pesquisa Fed com Principais Bancos de Empréstimos (SLOOS)","",""],[2,"19:30","EUA",1,"Despesas de Consumo Pessoal (PCE) - Fed Dallas (Set)","","1,90%"],
+[3,"","Japão",1,"Feriado: Dia da Cultura (mercados fechados)","",""],[3,"07:30","Alemanha",1,"Leilão Alemão Bobl a 5 anos","","3,220%"],[3,"10:00","Brasil",2,"PMI Industrial S&P Global (Out)","","44,8"],[3,"10:55","EUA",1,"Índice Redbook (Anual)","","9,3%"],[3,"12:00","EUA",1,"Pedidos de Bens Duráveis Excl. Defesa (Mensal) (Set)","2,2%","2,2%"],[3,"12:00","EUA",1,"Pedidos de Bens Duráveis Excl. Transporte (Mensal) (Set)","","0,5%"],[3,"12:00","EUA",2,"Encomendas à Indústria (Mensal) (Set)","","0,1%"],[3,"12:00","EUA",1,"Encomendas à Indústria excl. Transporte (Mensal) (Set)","","0,3%"],[3,"12:00","EUA",1,"Índice IBD/TIPP de Otimismo Econômico (Nov)","","46,8"],[3,"12:00","EUA",3,"Ofertas de Emprego JOLTS (Set)","","7,079M"],[3,"14:00","Alemanha",2,"Discurso de Nagel, Presidente do Bundesbank","",""],[3,"16:00","EUA",1,"Total de Vendas de Veículos (Out)","","16,00M"],[3,"17:30","EUA",2,"Estoques de Petróleo Bruto Semanal API","","-2,031M"],[3,"20:50","Japão",1,"Base Monetária (Anual) (Out)","","-15,2%"],[3,"22:45","China",2,"PMI do Setor de Serviços Caixin (Out)","","51,6"],
+[4,"05:55","Alemanha",1,"PMI Composto - Alemanha (Out)","52,8","52,8"],[4,"05:55","Alemanha",2,"PMI do Setor de Serviços - Alemanha (Out)","51,7","51,7"],[4,"06:00","Zona Euro",2,"PMI Composto S&P Global (Out)","51,9","51,9"],[4,"06:00","Zona Euro",2,"PMI do Setor de Serviços (Out)","51,7","51,7"],[4,"06:30","Reino Unido",2,"PMI Composto (Out)","53,1","53,1"],[4,"06:30","Reino Unido",2,"PMI do Setor de Serviços (Out)","53,1","53,1"],[4,"07:00","Brasil",2,"IPC-Fipe (Mensal) (Out)","","0,51%"],[4,"07:00","Zona Euro",2,"IPC-núcleo (Anual) (Out)","","2,5%"],[4,"07:00","Zona Euro",1,"IPC-núcleo (Mensal) (Out)","","0,2%"],[4,"07:00","Zona Euro",3,"IPC Zona do Euro (Anual) (Out)","3,9%","3,8%"],[4,"07:00","Zona Euro",2,"IPC (Mensal) (Out)","","0,6%"],[4,"07:00","Zona Euro",1,"IHCP excluindo Energia e Alimentos (Anual) (Out)","","2,2%"],[4,"07:00","Zona Euro",1,"IHCP excluindo Energia e Alimentos (Mensal) (Out)","","0,2%"],[4,"09:00","EUA",1,"Juros de Hipotecas de 30 anos MBA","","7,37%"],[4,"09:00","EUA",1,"Pedidos de Hipotecas MBA (Semanal)","","3,4%"],[4,"10:15","EUA",3,"Variação de Empregos Privados ADP (Out)","","90K"],[4,"10:30","EUA",2,"Exportações (Set)","","315,20B"],[4,"10:30","EUA",2,"Importações (Set)","","420,80B"],[4,"10:30","EUA",2,"Balança Comercial (Set)","","-105,60B"],[4,"11:45","EUA",2,"PMI Composto S&P Global (Out)","57,6","57,6"],[4,"11:45","EUA",3,"PMI do Setor de Serviços S&P Global (Out)","57,9","57,9"],[4,"12:00","EUA",1,"Atividade Empresarial Não Manufatureira ISM (Out)","","56,5"],[4,"12:00","EUA",2,"ISM Não-Manufatura: Emprego (Out)","","50,1"],[4,"12:00","EUA",1,"ISM Não-Manufatura: Novos Pedidos (Out)","","59,8"],[4,"12:00","EUA",3,"PMI ISM Não-Manufatura (Out)","","54,9"],[4,"12:00","EUA",2,"ISM Não-Manufatura: Preços (Out)","","74,0"],[4,"12:30","EUA",2,"GDPNow do Fed de Atlanta (Q4)","",""],[4,"12:30","EUA",3,"Estoques de Petróleo Bruto (EIA)","","-1,892M"],[4,"12:30","EUA",2,"Estoques de Petróleo em Cushing","","-0,624M"],[4,"12:30","EUA",1,"Estoques de Gasolina","","3,870M"],[4,"14:30","Brasil",3,"Índice de Evolução de Emprego do CAGED (Set)","180,00K","165,83K"],[4,"14:30","Brasil",2,"Fluxo Cambial Estrangeiro (BCB)","","3,506B"],[4,"18:30","Brasil",3,"Taxa de Juros Selic — decisão do Copom","","13,75%"],[4,"20:50","Japão",2,"Atas da Reunião de Política Monetária (BoJ)","",""],[4,"21:30","Japão",1,"PMI Industrial (Out)","53,3","54,1"],
+[5,"00:35","Japão",2,"Leilão JGB a 10 anos","","3,101%"],[5,"04:00","Alemanha",2,"Encomendas à Indústria - Alemanha (Mensal) (Set)","","-10,6%"],[5,"05:30","Alemanha",1,"PMI de Construção S&P Global - Alemanha (Out)","","43,5"],[5,"05:30","Zona Euro",1,"PMI de Construção S&P Global (Out)","","43,4"],[5,"06:00","Reino Unido",1,"Licenciamento de Veículos (Anual) (Out)","","12,0%"],[5,"06:30","Reino Unido",2,"PMI de Construção (Out)","","46,1"],[5,"07:00","Zona Euro",1,"IPP (Mensal) (Set)","","1,9%"],[5,"07:00","Zona Euro",1,"IPP (Anual) (Set)","","8,2%"],[5,"07:30","EUA",1,"Demissões Anunciadas Challenger (Out)","","43,281K"],[5,"08:00","Alemanha",1,"Licenciamento de Automóveis (Anual) (Out)","","9,0%"],[5,"09:00","Reino Unido",3,"Decisão da Taxa de Juros (Nov) (BoE)","4,00%","3,75%"],[5,"09:00","Reino Unido",2,"Voto do Comitê de Política Monetária - Aumento (Nov)","7","3"],[5,"09:00","Reino Unido",2,"Voto do Comitê de Política Monetária - Inalterado (Nov)","2","6"],[5,"09:00","Reino Unido",2,"Voto do Comitê de Política Monetária - Corte (Nov)","0","0"],[5,"09:00","Reino Unido",2,"Atas da Reunião do MPC (BoE)","",""],[5,"09:00","Brasil",3,"Produção Industrial (Mensal) (Set)","","-0,6%"],[5,"09:00","Brasil",3,"Produção Industrial (Anual) (Set)","","-1,2%"],[5,"09:30","Reino Unido",2,"Pronunciamento de Bailey, gov. do BoE","",""],[5,"10:00","Brasil",2,"PMI Composto S&P Global (Out)","","47,4"],[5,"10:00","Brasil",2,"PMI do Setor de Serviços S&P Global (Out)","","49,2"],[5,"10:30","EUA",2,"Pedidos Contínuos por Seguro-Desemprego","","1.701K"],[5,"10:30","EUA",3,"Pedidos Iniciais por Seguro-Desemprego","","194K"],[5,"10:30","EUA",1,"Média de Pedidos de Seguro-Desemprego (4 Semanas)","","196,75K"],[5,"10:30","EUA",2,"Produtividade do Setor Não Agrícola (Trimestral) (Q3)","","1,4%"],[5,"10:30","EUA",2,"Custo Unitário da Mão de Obra (Trimestral) (Q3)","","1,2%"],[5,"11:10","EUA",1,"Discurso de Barkin, Membro do FOMC","",""],[5,"12:30","EUA",1,"Estoque de Gás Natural","","80B"],[5,"13:30","EUA",1,"Leilão Americano Bill a 4 semanas","","3,910%"],[5,"13:30","EUA",1,"Leilão Americano Bill a 8 semanas","","4,020%"],[5,"14:45","Alemanha",2,"Discurso de Nagel, Presidente do Bundesbank","",""],[5,"15:00","Zona Euro",2,"Discurso de Christine Lagarde, Presidente do BCE","",""],[5,"18:30","EUA",3,"Balanço Patrimonial do Federal Reserve","","6.746B"],[5,"18:30","EUA",1,"Saldos de reservas com bancos do Federal Reserve","","2,895T"],[5,"20:30","Japão",1,"Rendimento Médio do Trabalhador (Anual) (Set)","","3,8%"],[5,"20:30","Japão",1,"Massa Salarial Geral de Empregados (Set)","","3,9%"],[5,"20:30","Japão",1,"Pagamento de Hora Extras (Anual) (Set)","","4,90%"],[5,"20:50","Japão",1,"Compra de Títulos Estrangeiros","","-92,6B"],[5,"20:50","Japão",1,"Investimentos Estrangeiros em Ações Japonesas","","1.180,9B"],[5,"21:00","EUA",1,"Discurso de Logan, do Fed","",""],[5,"21:30","Japão",1,"PMI Composto (Out)","52,30","52,30"],[5,"21:30","Japão",2,"PMI do Setor de Serviços (Out)","52,0","51,3"],
+[6,"04:00","Reino Unido",2,"Índice de Preços de Imóveis Halifax (Mensal) (Out)","","0,0%"],[6,"04:00","Reino Unido",2,"Índice de Preços de Imóveis Halifax (Anual) (Out)","","0,0%"],[6,"04:00","Alemanha",2,"Produção Industrial - Alemanha (Mensal) (Set)","0,5%","2,0%"],[6,"04:00","Alemanha",1,"Produção Industrial - Alemanha (Anual) (Set)","","2,33%"],[6,"06:30","EUA",2,"Discurso de Williams, membro do FOMC","",""],[6,"07:00","Reino Unido",2,"Taxa hipotecária (GBP) (Out)","","6,58%"],[6,"07:00","Zona Euro",1,"Vendas no Varejo (Mensal) (Set)","","0,1%"],[6,"07:00","Zona Euro",1,"Vendas no Varejo (Anual) (Set)","","0,8%"],[6,"09:15","Reino Unido",2,"Discurso de Pill, Membro do CPM do BoE","",""],[6,"10:30","EUA",3,"Relatório de Emprego (Payroll) não-agrícola (Out)","","29K"],[6,"10:30","EUA",3,"Taxa de Desemprego nos EUA (Out)","","4,2%"],[6,"10:30","EUA",3,"Ganho Médio por Hora Trabalhada (Mensal) (Out)","","0,1%"],[6,"10:30","EUA",2,"Salário Médio por Hora (Anual) (Out)","","3,0%"],[6,"10:30","EUA",2,"Relatório de Emprego (Payroll) Privado (Out)","","46K"],[6,"10:30","EUA",1,"Payroll em Manufatura (Out)","","9K"],[6,"10:30","EUA",1,"Payroll do Governo (Out)","","-17,0K"],[6,"10:30","EUA",1,"Média de Horas Trabalhadas Semanais (Out)","","34,4"],[6,"10:30","EUA",2,"Taxa de Participação (Out)","","61,8%"],[6,"10:30","EUA",2,"Taxa de Desemprego U6 (Out)","","7,6%"],[6,"12:00","EUA",2,"Índice Michigan de Percepção do Consumidor - Preliminar (Nov)","","48,0"],[6,"12:00","EUA",1,"Índice de Condições Atuais Michigan (Nov)","","46,7"],[6,"12:00","EUA",2,"Expectativas de Inflação Michigan (Nov)","","4,7%"],[6,"12:00","EUA",2,"Expectativas de Inflação a 5 anos Michigan (Nov)","","3,5%"],[6,"13:00","Japão",2,"Discurso de Ueda, presidente do BoJ","",""],[6,"14:15","EUA",2,"Discurso de Bowman, Membro do FOMC","",""],[6,"15:00","EUA",2,"Contagem de Sondas Baker Hughes","",""],[6,"15:00","Brasil",3,"Balança Comercial (Out)","","7,74B"],[6,"16:30","Reino Unido",2,"GBP - Posições líquidas de especuladores (CFTC)","","-79,4K"],[6,"16:30","Brasil",2,"BRL - Posições líquidas de especuladores (CFTC)","","32,9K"],[6,"16:30","Japão",2,"JPY - Posições líquidas de especuladores (CFTC)","","101,6K"],[6,"16:30","Zona Euro",2,"EUR - Posições líquidas de especuladores (CFTC)","","-143,9K"],[6,"17:00","EUA",1,"Crédito ao Consumidor (Set)","","8,28B"]];
+// Itens adicionados de outras fontes (BCB, Tesouro Nacional, Tesouro dos EUA) — marcados com "outra fonte"
+const X=[[2,"17:00","EUA",2,"Tesouro dos EUA: estimativas de captação do trimestre (refinanciamento; horário usual, a confirmar)","",""],
+[3,"","EUA",3,"Eleições de meio de mandato nos EUA (midterms)","",""],
+[3,"08:25","Brasil",2,"Boletim Focus (adiado por Finados; Investing.com lista na segunda)","",""],
+[3,"","Brasil",2,"Copom — 1º dia da reunião de política monetária","",""],
+[3,"11:00","Brasil",2,"Leilão Tesouro Nacional: NTN-B 15/05/2029, 15/05/2033, 15/05/2055 + LFT 01/12/2032 (resultado ~11h45; a confirmar na portaria)","",""],
+[4,"10:30","EUA",2,"Tesouro dos EUA: anúncio do refinanciamento trimestral (Quarterly Refunding; horário usual, a confirmar)","",""],
+[4,"18:30","Brasil",3,"Comunicado do Copom (ata em 10/nov)","",""],
+[5,"11:00","Brasil",2,"Leilão Tesouro Nacional: LTN 01/01/2028, 01/07/2029, 01/01/2032 + NTN-F 2031, 2033, 2037 (resultado ~11h45; a confirmar na portaria)","",""]];
+const PROJ={};
+const rows=D.map(r=>r.concat([0])).concat(X.map(r=>r.concat([1])));
+const typeOf=e=>/Leilão/i.test(e)?"Leilão":/(Discurso|Pronunciamento|Ata|Atas|FOMC|BCE|BoJ|BoE|Copom|Selic|MPC|Comitê de Política Monetária|Livro Bege|Balanço Patrimonial|Saldos de reservas|Focus|Fluxo Cambial|CMN|Relatório Mensal do Banco Central|LPR|GDPNow|SLOOS|Refunding|captação)/.test(e)?"BC/Política":/(feriado|eleições|Orçamento)/i.test(e)?"Feriado/Evento":"Indicador";
+const C=["Todos","Brasil","EUA","China","Japão","Zona Euro","Alemanha","Reino Unido"],T=["Todos","Indicador","BC/Política","Leilão","Feriado/Evento"],I=[["Todas",0],["★★ ou mais",2],["★★★",3]];
+const FL={"Brasil":"🇧🇷","EUA":"🇺🇸","China":"🇨🇳","Japão":"🇯🇵","Zona Euro":"🇪🇺","Alemanha":"🇩🇪","Reino Unido":"🇬🇧"};
+const DN={2:"Segunda-feira, 2 de novembro",3:"Terça-feira, 3 de novembro",4:"Quarta-feira, 4 de novembro",5:"Quinta-feira, 5 de novembro",6:"Sexta-feira, 6 de novembro"};
+let st={c:"Todos",t:"Todos",i:0};
+try{const s=JSON.parse(localStorage.getItem("calf")||"null");if(s)st=s}catch(e){}
+function bar(id,list,key,val){const el=document.getElementById(id);list.forEach(x=>{const lab=Array.isArray(x)?x[0]:x,v=Array.isArray(x)?x[1]:x;const b=document.createElement("button");b.textContent=(FL[lab]?FL[lab]+" ":"")+lab;b.onclick=()=>{st[key]=v;save();draw()};b.dataset.v=v;el.appendChild(b)})}
+function save(){try{localStorage.setItem("calf",JSON.stringify(st))}catch(e){}}
+const esc=s=>s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+function draw(){[["fc","c"],["ft","t"],["fi","i"]].forEach(([id,k])=>document.querySelectorAll("#"+id+" button").forEach(b=>b.classList.toggle("on",b.dataset.v==String(st[k]))));
+let h="";for(const d of [2,3,4,5,6]){const rs=rows.filter(r=>r[0]==d&&(st.c=="Todos"||r[2]==st.c)&&(st.t=="Todos"||typeOf(r[4])==st.t)&&r[3]>=st.i).sort((a,b)=>(a[1]||"00:00").localeCompare(b[1]||"00:00"));
+h+=`<section class="day"><h3>${DN[d]}</h3>`;if(!rs.length){h+=`<div class="empty">Sem eventos para o filtro.</div></section>`;continue}
+h+=`<table class="tbl"><thead><tr><th>Hora</th><th>País</th><th class="hide-s">Imp.</th><th>Evento</th><th style="text-align:right">Consenso</th><th style="text-align:right">Anterior</th></tr></thead><tbody>`;
+for(const r of rs){const ty=typeOf(r[4]);const tg=ty=="BC/Política"?'<span class="tag bc">BC</span>':ty=="Leilão"?'<span class="tag le">leilão</span>':"";const ad=r[7]?'<span class="tag ad">outra fonte</span>':"";const pj=r[5]||PROJ[r[4]]||"";
+h+=`<tr class="${r[3]>=3?"high":""}"><td class="t">${r[1]||"—"}</td><td class="ctry">${FL[r[2]]||""} ${r[2]}</td><td class="imp hide-s">${"★".repeat(r[3])}</td><td class="ev">${esc(r[4])}${tg}${ad}</td><td class="n">${pj||"—"}</td><td class="n">${r[6]||"—"}</td></tr>`}
+h+=`</tbody></table></section>`}
+h+=`<p class="note">Coleta em 31/10 (sábado): payroll, ISM, JOLTS, Selic e a maior parte dos dados do Brasil ainda sem consenso publicado no Investing.com. ★ = importância segundo o Investing.com.</p>`;
+document.getElementById("out").innerHTML=h}
+bar("fc",C,"c");bar("ft",T,"t");bar("fi",I,"i");draw();
+</script>
+</body>
+</html>
