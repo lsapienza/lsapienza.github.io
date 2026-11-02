@@ -46,11 +46,13 @@ def baixar_conteudo(url: str, timeout: int = TIMEOUT_SEGUNDOS) -> bytes | None:
     """Baixa o conteúdo de uma URL.
 
     Retorna os bytes do PDF quando o recurso existe (HTTP 200), ou None
-    quando não existe (HTTP 404 — ex.: feriado adiou a publicação). Outros
-    erros de HTTP são propagados como exceção.
+    quando não está disponível: HTTP 404 (não existe) ou HTTP 401 (já está no
+    site, mas só é liberado no horário de divulgação — caso real de 2/11/2026,
+    feriado que adiou a publicação para 3/11). Outros erros de HTTP são
+    propagados como exceção.
     """
     resposta = requests.get(url, timeout=timeout)
-    if resposta.status_code == 404:
+    if resposta.status_code in (401, 404):
         return None
     resposta.raise_for_status()
     return resposta.content

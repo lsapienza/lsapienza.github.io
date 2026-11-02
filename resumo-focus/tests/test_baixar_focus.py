@@ -58,6 +58,20 @@ def test_baixar_conteudo_retorna_none_quando_404(mock_get):
     assert baixar_conteudo("http://exemplo.com") is None
 
 
+@patch("src.baixar_focus.requests.get")
+def test_baixar_conteudo_retorna_none_quando_401(mock_get):
+    # PDF já no site do BCB, mas ainda não liberado (caso real de 2/11/2026).
+    mock_get.return_value = _resposta(401)
+    assert baixar_conteudo("http://exemplo.com") is None
+
+
+@patch("src.baixar_focus.requests.get")
+def test_baixar_conteudo_propaga_outros_erros_http(mock_get):
+    mock_get.return_value = _resposta(500)
+    with pytest.raises(Exception, match="erro http"):
+        baixar_conteudo("http://exemplo.com")
+
+
 @pytest.mark.parametrize(
     "referencia, esperado",
     [

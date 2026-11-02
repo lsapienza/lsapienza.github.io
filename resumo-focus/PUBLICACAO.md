@@ -18,6 +18,10 @@ menu do site como "Boletim Focus".
 1. `git pull` em `C:\Sapienza\VSC\Site`.
 2. Se não houver `data/focus_*.txt` da última sexta (feriado, Action atrasada),
    rodar `baixar_focus.py` + `extrair_texto.py` localmente e commitar os dois arquivos.
+   Se o script não devolver caminho nenhum, o relatório ainda não foi liberado
+   (HTTP 401 ou 404): conferir a data do próximo relatório na agenda de
+   bcb.gov.br/publicacoes/focus, **não publicar nada** e avisar quando rodar de novo.
+   A página do site continua com o relatório anterior, que está datado.
 3. `python src/tabular_focus.py data/focus_AAAA-MM-DD.txt > focus.json`
    (se o script falhar, o layout do PDF mudou: não publicar com números digitados à mão).
 4. Copiar `focus/index.html` da semana anterior como modelo e trocar: título,
