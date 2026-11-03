@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boletim Focus Semanal</title>
+<style>
+:root{--bg:#f7f7f5;--card:#fff;--ink:#1d1f23;--mute:#6b7078;--line:#e3e4e1;--acc:#1f5fbf;--up:#b5482f;--dn:#1e7a8a;--chip:#eef0f3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15171a;--card:#1d2024;--ink:#e8e9eb;--mute:#9aa0a8;--line:#2d3136;--acc:#6fa3ff;--up:#ff8a70;--dn:#62c6d6;--chip:#2a2e33}}
+:root[data-theme="dark"]{--bg:#15171a;--card:#1d2024;--ink:#e8e9eb;--mute:#9aa0a8;--line:#2d3136;--acc:#6fa3ff;--up:#ff8a70;--dn:#62c6d6;--chip:#2a2e33}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.box h2{font-size:15px;margin:0 0 8px}
+.box ul{margin:0;padding-left:18px}
+.box li{margin-bottom:4px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.kpi .k{font-size:12px;color:var(--mute)}
+.kpi .v{font-size:26px;font-weight:650;font-variant-numeric:tabular-nums;margin:2px 0}
+.kpi .d{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.bar button{border:1px solid var(--line);background:var(--card);color:var(--ink);padding:5px 11px;border-radius:999px;cursor:pointer;font:inherit;font-size:13px}
+.bar button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.lbl{color:var(--mute);font-size:12px;align-self:center;margin-right:4px}
+.scroll{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.tbl th,.tbl td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.tbl th{font-size:12px;color:var(--mute);font-weight:600;background:var(--chip)}
+.tbl th.n,.tbl td.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tbl td.hoje{font-weight:650}
+tr.mov td.ind{font-weight:600}
+.up{color:var(--up)}.dn{color:var(--dn)}.eq{color:var(--mute)}
+.note{color:var(--mute);font-size:12px}
+@media (max-width:640px){.tbl .hide-s{display:none}.tbl th,.tbl td{padding:5px 6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<p class="note"><a href="/pt/index.html">← lsapienza.github.io</a> · <a href="/calendario/">Calendário econômico</a> · <a href="/focus/arquivo/">Semanas anteriores</a></p>
+<h1>Boletim Focus — 30 de outubro de 2026</h1>
+<p class="sub">Expectativas de mercado (mediana agregada) do Banco Central do Brasil. Relatório com data de 30/10/2026, divulgado em 03/11/2026.</p>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="box">
+<h2>Destaques da semana</h2>
+<ul>
+<li><b>Virada na semana: juros esperados sobem em todos os anos.</b> A Selic de fim de 2026 subiu de 13,25% para <b>13,50%</b>, o mesmo nível de há quatro semanas, e já está em 13,75% entre os respondentes dos últimos 5 dias úteis. A mediana de 2027 foi de 11,75% para <b>12,50%</b>, a de 2028 de 10,00% para 11,00% e a de 2029 de 10,00% para 10,25%. Em novembro a mediana mensal segue em 13,50%, com 13,75% nos últimos 5 dias úteis. O relatório traz só as medianas, não os motivos da mudança.</li>
+<li><b>Dólar volta a subir, e forte.</b> A mediana do câmbio no fim de 2026 foi de R$ 5,05 para <b>R$ 5,34</b>, acima dos R$ 5,20 de há quatro semanas, e a de 2027 de R$ 5,15 para R$ 5,40. Entre os respondentes dos últimos 5 dias úteis, os números são R$ 5,40 e R$ 5,45. Para 2028 a mediana foi de R$ 5,20 para R$ 5,40 e para 2029 de R$ 5,28 para R$ 5,45.</li>
+<li><b>IPCA sobe, sobretudo de 2027 em diante.</b> A mediana de 2026 passou de 5,19% para <b>5,22%</b>. A de 2027 saltou de 4,34% para <b>4,76%</b>, na terceira alta seguida (4,85% nos últimos 5 dias úteis). A de 2028 foi de 3,75% para 4,00% e a de 2029 de 3,50% para 3,98%. A inflação suavizada de 12 meses à frente subiu de 4,53% para 4,96%. Nos administrados, 2027 foi de 3,99% para 4,44%.</li>
+<li><b>Inflação mensal: IPCA com poucas mudanças, IGP-M em alta.</b> O IPCA esperado para outubro foi de 0,28% para 0,27%, o de novembro de 0,33% para 0,35% e o de dezembro de 0,58% para 0,60%. No IGP-M, novembro subiu de 0,47% para 0,60% (0,81% nos últimos 5 dias úteis), e o ano de 2026 de 5,61% para 6,05%. O relatório já não traz mediana de outubro para o IGP-M e o câmbio.</li>
+<li><b>PIB com terceiro corte seguido.</b> A mediana de 2026 caiu de 1,80% para <b>1,76%</b> e a de 2027 de 1,31% para 1,20%. Entre os respondentes dos últimos 5 dias úteis, estão em 1,70% e 1,00%. 2028 foi de 1,81% para 1,80%, e 2029 segue em 2,00% pela 85ª semana.</li>
+<li><b>Fiscal pior nos anos à frente; investimento direto maior em 2026.</b> O primário de 2026 foi de −0,48% para −0,49% do PIB, o de 2027 de −0,30% para −0,40%, o de 2028 de 0,00% para −0,20% e o de 2029 de 0,10% para −0,10%. A dívida líquida subiu em todos os anos, chegando a 79,69% do PIB em 2029 (era 79,13%). No setor externo, o investimento direto no país em 2026 foi de US$ 80,00 bi para US$ 84,50 bi.</li>
+</ul>
+</div>
+
+<div class="bar" id="fh"><span class="lbl">Horizonte:</span></div>
+<div class="scroll"><table class="tbl" id="tb"></table></div>
+<p class="note">▲ alta, ▼ queda, = estável em relação ao relatório anterior; o número entre parênteses é há quantas semanas esse comportamento se repete. “5 dias úteis” é a mediana só de quem respondeu nos últimos 5 dias úteis, por isso costuma mostrar antes para onde a mediana geral está indo.</p>
+
+<div class="box" style="margin-top:20px">
+<h2>Fontes e notas</h2>
+<ul class="note">
+<li>Banco Central do Brasil, Focus – Relatório de Mercado de 30 de outubro de 2026 (PDF em bcb.gov.br/publicacoes/focus). As tabelas são lidas do texto extraído do PDF por um script, sem arredondamentos nem cálculos; os destaques citam apenas números presentes no relatório.</li>
+<li>“Resp.” é o número de respondentes nos últimos 30 dias. Indicadores anuais referem-se ao fim de cada ano (Selic e câmbio) ou à variação/saldo no ano.</li>
+<li>Selic e câmbio não têm coluna de inflação suavizada de 12 meses; Selic, câmbio e IGP-M de outubro aparecem sem mediana (“—”) no próprio relatório.</li>
+</ul>
+</div>
+</div>
+
+<script>
+// Gerado por resumo-focus/src/tabular_focus.py a partir de data/focus_2026-10-30.txt
+const D={"data_relatorio":"30 de outubro de 2026","paginas":[{"colunas":["2026","2027","2028","2029"],"linhas":[{"indicador":"IPCA (variação %)","blocos":[{"h4":"5,01","h1":"5,19","hoje":"5,22","comp":"▲","semanas":"1","resp":"144","5d":"5,22","resp5":"116"},{"h4":"4,30","h1":"4,34","hoje":"4,76","comp":"▲","semanas":"3","resp":"144","5d":"4,85","resp5":"116"},{"h4":"3,80","h1":"3,75","hoje":"4,00","comp":"▲","semanas":"1","resp":"131"},{"h4":"3,51","h1":"3,50","hoje":"3,98","comp":"▲","semanas":"1","resp":"121"}]},{"indicador":"PIB Total (variação % sobre ano anterior)","blocos":[{"h4":"1,85","h1":"1,80","hoje":"1,76","comp":"▼","semanas":"3","resp":"117","5d":"1,70","resp5":"75"},{"h4":"1,40","h1":"1,31","hoje":"1,20","comp":"▼","semanas":"3","resp":"116","5d":"1,00","resp5":"74"},{"h4":"1,81","h1":"1,81","hoje":"1,80","comp":"▼","semanas":"1","resp":"87"},{"h4":"2,00","h1":"2,00","hoje":"2,00","comp":"=","semanas":"85","resp":"79"}]},{"indicador":"Câmbio (R$/US$)","blocos":[{"h4":"5,20","h1":"5,05","hoje":"5,34","comp":"▲","semanas":"1","resp":"120","5d":"5,40","resp5":"86"},{"h4":"5,28","h1":"5,15","hoje":"5,40","comp":"▲","semanas":"1","resp":"119","5d":"5,45","resp5":"85"},{"h4":"5,30","h1":"5,20","hoje":"5,40","comp":"▲","semanas":"1","resp":"93"},{"h4":"5,33","h1":"5,28","hoje":"5,45","comp":"▲","semanas":"1","resp":"89"}]},{"indicador":"Selic (% a.a)","blocos":[{"h4":"13,50","h1":"13,25","hoje":"13,50","comp":"▲","semanas":"1","resp":"143","5d":"13,75","resp5":"108"},{"h4":"12,00","h1":"11,75","hoje":"12,50","comp":"▲","semanas":"1","resp":"143","5d":"12,50","resp5":"108"},{"h4":"10,50","h1":"10,00","hoje":"11,00","comp":"▲","semanas":"1","resp":"125"},{"h4":"10,00","h1":"10,00","hoje":"10,25","comp":"▲","semanas":"1","resp":"114"}]},{"indicador":"IGP-M (variação %)","blocos":[{"h4":"5,27","h1":"5,61","hoje":"6,05","comp":"▲","semanas":"2","resp":"65","5d":"6,30","resp5":"42"},{"h4":"4,11","h1":"4,01","hoje":"4,21","comp":"▲","semanas":"2","resp":"63","5d":"4,50","resp5":"41"},{"h4":"3,94","h1":"3,92","hoje":"4,00","comp":"▲","semanas":"2","resp":"58"},{"h4":"3,80","h1":"3,80","hoje":"3,90","comp":"▲","semanas":"1","resp":"54"}]},{"indicador":"IPCA Administrados (variação %)","blocos":[{"h4":"4,61","h1":"4,80","hoje":"4,80","comp":"=","semanas":"1","resp":"100","5d":"4,72","resp5":"71"},{"h4":"3,84","h1":"3,99","hoje":"4,44","comp":"▲","semanas":"3","resp":"99","5d":"4,62","resp5":"70"},{"h4":"3,62","h1":"3,63","hoje":"3,94","comp":"▲","semanas":"1","resp":"74"},{"h4":"3,50","h1":"3,50","hoje":"3,66","comp":"▲","semanas":"1","resp":"68"}]},{"indicador":"Conta corrente (US$ bilhões)","blocos":[{"h4":"-60,00","h1":"-60,00","hoje":"-60,00","comp":"=","semanas":"17","resp":"45","5d":"-60,65","resp5":"22"},{"h4":"-59,30","h1":"-59,35","hoje":"-59,35","comp":"=","semanas":"2","resp":"45","5d":"-59,33","resp5":"22"},{"h4":"-63,00","h1":"-64,90","hoje":"-64,61","comp":"▲","semanas":"2","resp":"36"},{"h4":"-62,31","h1":"-62,61","hoje":"-62,60","comp":"▲","semanas":"2","resp":"32"}]},{"indicador":"Balança comercial (US$ bilhões)","blocos":[{"h4":"78,30","h1":"80,00","hoje":"79,90","comp":"▼","semanas":"2","resp":"45","5d":"79,20","resp5":"21"},{"h4":"79,00","h1":"79,80","hoje":"79,80","comp":"=","semanas":"1","resp":"44","5d":"79,30","resp5":"21"},{"h4":"79,00","h1":"83,04","hoje":"83,02","comp":"▼","semanas":"1","resp":"38"},{"h4":"80,00","h1":"85,00","hoje":"85,00","comp":"=","semanas":"1","resp":"31"}]},{"indicador":"Investimento direto no país (US$ bilhões)","blocos":[{"h4":"80,00","h1":"80,00","hoje":"84,50","comp":"▲","semanas":"1","resp":"44","5d":"85,00","resp5":"21"},{"h4":"79,00","h1":"80,00","hoje":"80,00","comp":"=","semanas":"2","resp":"44","5d":"80,00","resp5":"21"},{"h4":"80,00","h1":"80,00","hoje":"80,00","comp":"=","semanas":"38","resp":"36"},{"h4":"80,00","h1":"80,00","hoje":"80,00","comp":"=","semanas":"25","resp":"32"}]},{"indicador":"Dívida líquida do setor público (% do PIB)","blocos":[{"h4":"70,00","h1":"70,10","hoje":"70,20","comp":"▲","semanas":"1","resp":"57","5d":"70,10","resp5":"31"},{"h4":"73,75","h1":"74,00","hoje":"74,20","comp":"▲","semanas":"1","resp":"56","5d":"74,30","resp5":"31"},{"h4":"76,46","h1":"76,60","hoje":"77,20","comp":"▲","semanas":"1","resp":"51"},{"h4":"79,05","h1":"79,13","hoje":"79,69","comp":"▲","semanas":"1","resp":"47"}]},{"indicador":"Resultado primário (% do PIB)","blocos":[{"h4":"-0,41","h1":"-0,48","hoje":"-0,49","comp":"▼","semanas":"1","resp":"62","5d":"-0,50","resp5":"33"},{"h4":"-0,40","h1":"-0,30","hoje":"-0,40","comp":"▼","semanas":"1","resp":"61","5d":"-0,40","resp5":"33"},{"h4":"-0,27","h1":"0,00","hoje":"-0,20","comp":"▼","semanas":"1","resp":"55"},{"h4":"-0,16","h1":"0,10","hoje":"-0,10","comp":"▼","semanas":"1","resp":"50"}]},{"indicador":"Resultado nominal (% do PIB)","blocos":[{"h4":"-8,88","h1":"-8,93","hoje":"-8,93","comp":"=","semanas":"1","resp":"57","5d":"-9,10","resp5":"29"},{"h4":"-8,50","h1":"-8,50","hoje":"-8,50","comp":"=","semanas":"9","resp":"56","5d":"-8,50","resp5":"29"},{"h4":"-7,91","h1":"-7,90","hoje":"-8,00","comp":"▼","semanas":"1","resp":"50"},{"h4":"-7,50","h1":"-7,40","hoje":"-7,54","comp":"▼","semanas":"1","resp":"44"}]}]},{"colunas":["out/2026","nov/2026","dez/2026","Infl. 12 m suav."],"linhas":[{"indicador":"IPCA (variação %)","blocos":[{"h4":"0,32","h1":"0,28","hoje":"0,27","comp":"▼","semanas":"3","resp":"138","5d":"0,26"},{"h4":"0,35","h1":"0,33","hoje":"0,35","comp":"▲","semanas":"1","resp":"138","5d":"0,35"},{"h4":"0,56","h1":"0,58","hoje":"0,60","comp":"▲","semanas":"2","resp":"138","5d":"0,60"},{"h4":"4,59","h1":"4,53","hoje":"4,96","comp":"▲","semanas":"3","resp":"132","5d":"5,02"}]},{"indicador":"Câmbio (R$/US$)","blocos":[{"h4":"5,19","h1":"5,04","hoje":"-"},{"h4":"5,19","h1":"5,03","hoje":"5,32","comp":"▲","semanas":"1","resp":"115","5d":"5,37"},{"h4":"5,20","h1":"5,05","hoje":"5,34","comp":"▲","semanas":"1","resp":"120","5d":"5,40"}]},{"indicador":"Selic (% a.a)","blocos":[{"h4":"-","h1":"-","hoje":"-"},{"h4":"13,50","h1":"13,50","hoje":"13,50","comp":"=","semanas":"5","resp":"139","5d":"13,75"},{"h4":"13,50","h1":"13,25","hoje":"13,50","comp":"▲","semanas":"1","resp":"143","5d":"13,75"}]},{"indicador":"IGP-M (variação %)","blocos":[{"h4":"0,70","h1":"1,38","hoje":"-"},{"h4":"0,50","h1":"0,47","hoje":"0,60","comp":"▲","semanas":"1","resp":"63","5d":"0,81"},{"h4":"0,47","h1":"0,39","hoje":"0,47","comp":"▲","semanas":"1","resp":"63","5d":"0,50"},{"h4":"4,64","h1":"4,28","hoje":"4,59","comp":"▲","semanas":"1","resp":"59","5d":"5,31"}]}]}]};
+const H=[];D.paginas.forEach((p,pi)=>p.colunas.forEach((c,ci)=>H.push({c,pi,ci})));
+const AR={"▲":["▲","up"],"▼":["▼","dn"],"=":["=","eq"]};
+let st=0;try{const s=+localStorage.getItem("focusH");if(s>=0&&s<H.length)st=s}catch(e){}
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const fmt=v=>v==null||v==="-"?"—":esc(v);
+function kpis(){const ano=D.paginas[0];const want=[["IPCA","IPCA 2026"],["Selic","Selic fim de 2026 (% a.a.)"],["PIB Total","PIB 2026 (%)"],["Câmbio","Câmbio fim de 2026 (R$/US$)"]];
+document.getElementById("kpis").innerHTML=want.map(([k,lab])=>{const l=ano.linhas.find(x=>x.indicador.startsWith(k+" ")||x.indicador===k);if(!l)return"";const b=l.blocos[0];const a=AR[b.comp]||["",""];
+return `<div class="kpi"><div class="k">${esc(lab)}</div><div class="v">${fmt(b.hoje)} <span class="${a[1]}" style="font-size:16px">${a[0]}</span></div><div class="d">há 1 semana ${fmt(b.h1)} · há 4 semanas ${fmt(b.h4)}</div></div>`}).join("")}
+function bar(){const el=document.getElementById("fh");H.forEach((h,i)=>{const b=document.createElement("button");b.textContent=h.c;b.onclick=()=>{st=i;try{localStorage.setItem("focusH",i)}catch(e){}draw()};el.appendChild(b)})}
+function draw(){document.querySelectorAll("#fh button").forEach((b,i)=>b.classList.toggle("on",i===st));
+const h=H[st],p=D.paginas[h.pi];
+let t=`<thead><tr><th>Indicador</th><th class="n hide-s">Há 4 sem.</th><th class="n">Há 1 sem.</th><th class="n">Hoje</th><th class="n">Comp.</th><th class="n">5 dias úteis</th><th class="n hide-s">Resp.</th></tr></thead><tbody>`;
+for(const l of p.linhas){const b=l.blocos[h.ci];if(!b)continue;const a=AR[b.comp]||["",""];
+t+=`<tr class="${b.comp&&b.comp!=="="?"mov":""}"><td class="ind">${esc(l.indicador)}</td><td class="n hide-s">${fmt(b.h4)}</td><td class="n">${fmt(b.h1)}</td><td class="n hoje">${fmt(b.hoje)}</td><td class="n ${a[1]}">${b.comp?a[0]+" ("+esc(b.semanas)+")":"—"}</td><td class="n">${fmt(b["5d"])}</td><td class="n hide-s">${fmt(b.resp)}</td></tr>`}
+document.getElementById("tb").innerHTML=t+"</tbody>"}
+kpis();bar();draw();
+</script>
+</body>
+</html>
